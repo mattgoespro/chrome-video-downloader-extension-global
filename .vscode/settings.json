@@ -1,0 +1,63 @@
+{
+  "[scss]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnPaste": true,
+    "editor.formatOnSave": true
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnPaste": true,
+    "editor.formatOnSave": true
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnPaste": true,
+    "editor.formatOnSave": true
+  },
+  "css.format.enable": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit",
+    "source.fixAll.eslint": "explicit",
+    "source.fixAll.scss": "explicit"
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "eslint.codeActionsOnSave.mode": "all",
+  "eslint.enable": true,
+  "eslint.format.enable": false,
+  "eslint.probe": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
+  "eslint.run": "onType",
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
+  "explorer.confirmDragAndDrop": false,
+  "files.exclude": {
+    ".git": true,
+    "**/node_modules/**": true
+  },
+  "files.watcherExclude": {
+    ".git": true,
+    "**/node_modules/**": true,
+    "**/dist/**": true
+  },
+  "html.format.enable": false,
+  "javascript.format.enable": false,
+  "javascript.suggestionActions.enabled": false,
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "javascript.validate.enable": false,
+  "markdown.occurrencesHighlight.enabled": true,
+  "material-icon-theme.activeIconPack": "react",
+  "material-icon-theme.files.color": "#000000",
+  "material-icon-theme.folders.color": "#eb7734",
+  "material-icon-theme.hidesExplorerArrows": true,
+  "npm.exclude": "release/**",
+  "prettier.configPath": ".prettierrc.js",
+  "search.exclude": {
+    ".git": true,
+    "**/dist/**": true,
+    "node_modules": true,
+    "npm-debug.log.*": true,
+    "package-lock.json": true
+  },
+  "typescript.format.enable": false,
+  "typescript.tsdk": "node_modules\\typescript\\lib",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "workbench.iconTheme": "material-icon-theme"
+}

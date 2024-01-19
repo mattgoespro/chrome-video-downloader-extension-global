@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
+    "declaration": false,
+    "esModuleInterop": true,
+    "allowJs": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "lib": ["es2017", "dom", "dom.iterable"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "paths": {
+      "video-downloader/*": ["src/extension/video-downloader/*"],
+      "components/*": ["./src/extension/shared/components/*"],
+      "message": ["src/extension/shared/message/message.ts"],
+      "theme": ["./src/extension/shared/theme/theme.ts"],
+      "typography": ["./src/extension/shared/theme/typography.ts"]
+    },
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "target": "es6",
+    "types": ["node", "chrome"],
+    "useDefineForClassFields": true
+  },
+  "include": ["src", "webpack.dev.ts"]
+}
