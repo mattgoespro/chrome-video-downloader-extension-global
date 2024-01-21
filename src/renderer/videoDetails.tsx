@@ -1,7 +1,7 @@
-import { VideoSource } from "video-downloader/model";
+import { VideoDetail } from "runtime/services/extension";
 
 export type VideoDetailsProps = {
-  details: VideoSource;
+  details: VideoDetail;
 };
 
 export const VideoDetails = ({ details }: VideoDetailsProps) => {

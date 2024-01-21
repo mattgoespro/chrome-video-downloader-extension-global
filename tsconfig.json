@@ -11,11 +11,10 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "paths": {
-      "video-downloader/*": ["src/extension/video-downloader/*"],
-      "components/*": ["./src/extension/shared/components/*"],
-      "message": ["src/extension/shared/message/message.ts"],
-      "theme": ["./src/extension/shared/theme/theme.ts"],
-      "typography": ["./src/extension/shared/theme/typography.ts"]
+      "runtime/*": ["src/runtime/*"],
+      "shared/*": ["src/shared/*"],
+      "theme": ["./src/shared/theme/theme.ts"],
+      "typography": ["./src/shared/theme/typography.ts"]
     },
     "resolveJsonModule": true,
     "skipLibCheck": true,

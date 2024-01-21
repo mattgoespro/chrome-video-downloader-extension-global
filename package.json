@@ -1,7 +1,7 @@
 {
-  "name": "chrome-video-downloader",
+  "name": "chrome-video-downloader-global",
   "version": "0.0.1",
-  "description": "Download videos from web pages on Chrome.",
+  "description": "Download videos from any web pages on Chrome.",
   "private": true,
   "author": "hoppingmode",
   "engines": {

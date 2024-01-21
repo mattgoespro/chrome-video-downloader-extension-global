@@ -1,21 +1,22 @@
 import { useState, useEffect } from "react";
-import { isExtensionMessage } from "message";
+import { VideoDetail } from "runtime/services/extension";
 import {
   VideoMessage,
   VideoDetailsFetchedMessage,
   FetchVideoDetailsMessage,
   DownloadVideoMessage
-} from "video-downloader/messages";
-import { VideoSource } from "video-downloader/model";
+} from "runtime/services/extension-messages";
+import { log } from "runtime/services/log";
+import { isExtensionMessage } from "shared/message";
 import { VideoDetails } from "./videoDetails";
 
 export const SidePanel = () => {
   const [videoFileName, setVideoFileName] = useState<string>(undefined);
-  const [videoDetails, setVideoDetails] = useState<VideoSource>(undefined);
+  const [videoDetails, setVideoDetails] = useState<VideoDetail>(undefined);
 
   chrome.runtime.onMessage.addListener((message: VideoMessage) => {
     if (!isExtensionMessage(message)) {
-      console.log("Skipping handling of non-extension message", message);
+      log("Skipping handling of non-extension message...");
       return;
     }
 

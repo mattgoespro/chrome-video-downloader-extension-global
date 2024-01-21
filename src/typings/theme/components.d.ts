@@ -1,6 +1,6 @@
 import { Theme } from "@mui/material";
 import { ComponentsOverrides, ComponentsProps, ComponentsVariants } from "@mui/material/styles";
-import { CaptionProps } from "components/caption";
+import { CaptionProps } from "src/renderer/components/caption";
 
 declare module "@mui/material/styles" {
   interface Components {

@@ -26,9 +26,9 @@ function getExtensionReloaderEntryOptions(config: Configuration) {
 
 const config: Configuration = webpackMerge(baseConfig, {
   mode: "development",
-  devtool: false,
+  devtool: "source-map",
   plugins: [
-    new SourceMapDevToolPlugin({ filename: false }),
+    new SourceMapDevToolPlugin(),
     new ExtensionReloaderWebpackPlugin({
       port: 9090,
       reloadPage: true,

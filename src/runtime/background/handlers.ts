@@ -1,11 +1,11 @@
-import { isExtensionMessage } from "message";
 import {
   VideoMessage,
   ScrapeVideoDetailsMessage,
   VideoDetailsScrapedMessage,
   VideoDetailsFetchedMessage,
   DownloadVideoMessage
-} from "video-downloader/messages";
+} from "runtime/services/extension-messages";
+import { isExtensionMessage } from "shared/message";
 
 export async function runtimeHandler(message: VideoMessage): Promise<void> {
   if (!isExtensionMessage(message)) {

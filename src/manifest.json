@@ -14,12 +14,17 @@
   "content_scripts": [
     {
       "js": ["js/contentScript.js"],
-      "matches": ["https://*/*", "http://*/*"],
+      "matches": [
+        "https://*/video/*",
+        "https://*/*/video/*",
+        "https://*/videos/*",
+        "https://*/*/videos/*",
+        "https://*/watch/*",
+        "https://*/*/watch/*",
+        "https://*/embed/*",
+        "https://*/*/embed/*"
+      ],
       "run_at": "document_end"
-    },
-    {
-      "js": ["js/logger.js"],
-      "matches": ["https://*/*", "http://*/*"]
     }
   ],
   "content_security_policy": {

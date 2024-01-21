@@ -6,23 +6,22 @@ import HtmlWebpackPlugin from "html-webpack-plugin";
 import TsConfigPathsWebpackPlugin from "tsconfig-paths-webpack-plugin";
 import { Configuration, EnvironmentPlugin } from "webpack";
 
-export const srcPath = path.join(__dirname, "src");
-export const extensionManifestPath = path.join(srcPath, "manifest.json");
-export const extensionPath = path.join(srcPath, "extension");
-export const publicPath = path.join(__dirname, "public");
-export const distPath = path.join(__dirname, "dist");
+const srcPath = path.join(__dirname, "src");
+const runtimePath = path.join(srcPath, "runtime");
+const rendererPath = path.join(srcPath, "renderer");
+const publicPath = path.join(__dirname, "public");
+const distPath = path.join(__dirname, "dist");
+const contentScriptsPath = path.join(runtimePath, "contentScripts");
 
-const contentScriptsPath = path.join(extensionPath, "contentScripts");
+export const extensionManifestPath = path.join(srcPath, "manifest.json");
 
 const config: Configuration = {
   context: __dirname, // Favicon webpack plugin resolves paths relative to webpack context
   stats: "errors-warnings",
   entry: {
-    background: path.join(extensionPath, "background", "background.ts"),
+    extension: path.join(rendererPath, "extension.tsx"),
     contentScript: path.join(contentScriptsPath, "contentScript.ts"),
-    contentScriptInjection: path.join(contentScriptsPath, "contentScriptInjection.ts"),
-    logger: path.join(contentScriptsPath, "logger.ts"),
-    extension: path.join(extensionPath, "extension.tsx")
+    background: path.join(runtimePath, "background", "background.ts")
   },
   output: {
     path: distPath,
@@ -36,7 +35,11 @@ const config: Configuration = {
         path.join(__dirname, "node_modules", "webextension-polyfill-ts")
       )
     },
-    plugins: [new TsConfigPathsWebpackPlugin()]
+    plugins: [
+      new TsConfigPathsWebpackPlugin({
+        configFile: path.join(__dirname, "tsconfig.json")
+      })
+    ]
   },
   module: {
     rules: [
@@ -46,7 +49,12 @@ const config: Configuration = {
       },
       {
         test: /\.(js|ts)x?$/,
-        loader: "babel-loader",
+        use: [
+          {
+            loader: "babel-loader",
+            options: { include: [path.resolve(srcPath)] }
+          }
+        ],
         exclude: /node_modules/
       }
     ]
@@ -61,8 +69,8 @@ const config: Configuration = {
       filename: "panel.html",
       template: path.join(publicPath, "panel.html"),
       inject: "body",
-      chunks: ["extension"],
-      hash: true
+      chunks: ["extension", "contentScript", "background"],
+      hash: false
     }),
     new CopyWebpackPlugin({
       patterns: [

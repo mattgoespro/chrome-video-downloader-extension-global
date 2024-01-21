@@ -1,4 +1,4 @@
-import { Message } from "message";
+import { Message } from "shared/message";
 
 export type VideoMessagePayloadMap = {
   fetchVideoDetails: null;
