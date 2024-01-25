@@ -1,4 +1,4 @@
-import { VideoDetail } from "runtime/services/extension";
+import { VideoDetail } from "runtime/services/video-details/model";
 
 export type VideoDetailsProps = {
   details: VideoDetail;

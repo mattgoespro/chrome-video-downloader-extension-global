@@ -1,8 +1,4 @@
-export type VideoDetail = {
-  title: string;
-  srcUrl: string;
-  thumbnailUrl: string;
-};
+import { log } from "../utils";
 
 export type ExtensionErrorType = "ScrapeElementError" | "VideoDetailError";
 
@@ -74,5 +70,24 @@ export class ExtensionError<Type extends ExtensionErrorType> extends Error {
     if (!thumbnailUrl) detailErrorMessages.push("Thumbnail URL not found");
 
     return detailErrorMessages;
+  }
+}
+
+export function handleExtensionError(error: ExtensionError<ExtensionErrorType>): void {
+  switch (error.type) {
+    case "ScrapeElementError":
+      log({
+        message: [
+          "Error scraping video details from page:",
+          error.message,
+          error.stack ? `\n${error.stack}` : ""
+        ]
+      });
+      break;
+    case "VideoDetailError":
+      log({
+        message: ["Incomplete video details.", error.message, error.stack ? `\n${error.stack}` : ""]
+      });
+      break;
   }
 }

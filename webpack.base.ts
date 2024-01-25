@@ -6,27 +6,29 @@ import HtmlWebpackPlugin from "html-webpack-plugin";
 import TsConfigPathsWebpackPlugin from "tsconfig-paths-webpack-plugin";
 import { Configuration, EnvironmentPlugin } from "webpack";
 
-const srcPath = path.join(__dirname, "src");
+export const srcPath = path.join(__dirname, "src");
+export const extensionManifestPath = path.join(srcPath, "manifest.json");
+
 const runtimePath = path.join(srcPath, "runtime");
 const rendererPath = path.join(srcPath, "renderer");
 const publicPath = path.join(__dirname, "public");
 const distPath = path.join(__dirname, "dist");
-const contentScriptsPath = path.join(runtimePath, "contentScripts");
-
-export const extensionManifestPath = path.join(srcPath, "manifest.json");
+const contentScriptPath = path.join(runtimePath, "contentScript");
 
 const config: Configuration = {
   context: __dirname, // Favicon webpack plugin resolves paths relative to webpack context
   stats: "errors-warnings",
   entry: {
     extension: path.join(rendererPath, "extension.tsx"),
-    contentScript: path.join(contentScriptsPath, "contentScript.ts"),
-    background: path.join(runtimePath, "background", "background.ts")
+    contentScript: path.join(contentScriptPath, "contentScript.ts"),
+    background: path.join(runtimePath, "background", "background.ts"),
+    contextMenu: path.join(runtimePath, "background", "contextMenu.ts")
   },
   output: {
     path: distPath,
     filename: "js/[name].js",
-    publicPath: "./"
+    publicPath: "./",
+    sourceMapFilename: "[file].map"
   },
   resolve: {
     extensions: [".ts", ".tsx", ".js", ".json"],

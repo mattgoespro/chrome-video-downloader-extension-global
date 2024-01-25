@@ -27,10 +27,6 @@
       "run_at": "document_end"
     }
   ],
-  "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'",
-    "sandbox": "sandbox allow-scripts; script-src 'self'; object-src 'self'"
-  },
   "description": "Download videos from a web page.",
   "host_permissions": ["https://*/*", "http://*/*"],
   "icons": {

@@ -2,7 +2,7 @@
 import { Configuration, SourceMapDevToolPlugin } from "webpack";
 import { ExtensionReloader } from "webpack-ext-reloader";
 import webpackMerge from "webpack-merge";
-import baseConfig, { extensionManifestPath } from "./webpack.base";
+import baseConfig, { extensionManifestPath, srcPath } from "./webpack.base";
 const ExtensionReloaderWebpackPlugin: typeof ExtensionReloader = require("webpack-ext-reloader");
 
 function getExtensionReloaderEntryOptions(config: Configuration) {
@@ -26,9 +26,12 @@ function getExtensionReloaderEntryOptions(config: Configuration) {
 
 const config: Configuration = webpackMerge(baseConfig, {
   mode: "development",
-  devtool: "source-map",
+  devtool: false,
   plugins: [
-    new SourceMapDevToolPlugin(),
+    new SourceMapDevToolPlugin({
+      sourceRoot: srcPath,
+      filename: "[file].map"
+    }),
     new ExtensionReloaderWebpackPlugin({
       port: 9090,
       reloadPage: true,

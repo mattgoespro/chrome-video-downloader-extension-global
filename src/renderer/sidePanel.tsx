@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { VideoDetail } from "runtime/services/extension";
 import {
   VideoMessage,
   VideoDetailsFetchedMessage,
   FetchVideoDetailsMessage,
   DownloadVideoMessage
-} from "runtime/services/extension-messages";
-import { log } from "runtime/services/log";
+} from "runtime/services/extension/messages";
+import { log } from "runtime/services/utils";
+import { VideoDetail } from "runtime/services/video-details/model";
 import { isExtensionMessage } from "shared/message";
 import { VideoDetails } from "./videoDetails";
 

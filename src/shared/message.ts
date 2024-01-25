@@ -1,16 +1,19 @@
-export type Message<
-  PayloadMap extends Record<string, unknown> = Record<string, unknown>,
-  Subject extends keyof PayloadMap = keyof PayloadMap
-> = {
+export type Message<Subject> = {
   type: "extensionMessage";
   subject: Subject;
-  payload: PayloadMap[Subject];
 };
 
-export type MessagePayload<M> = M extends Message<infer PayloadMap, infer Subject>
-  ? PayloadMap[Subject]
+export type PayloadMessage<
+  Subject extends keyof PayloadMap,
+  PayloadMap extends Record<string, unknown> = undefined
+> = Subject extends keyof PayloadMap
+  ? {
+      payload: PayloadMap[Subject];
+    } & Message<Subject>
   : never;
 
-export function isExtensionMessage<M extends Message>(message: M) {
+export type Payload<M> = M extends PayloadMessage<infer _, infer _> ? M["payload"] : undefined;
+
+export function isExtensionMessage(message: Message<unknown>) {
   return message.type === "extensionMessage" && message.subject !== undefined;
 }
