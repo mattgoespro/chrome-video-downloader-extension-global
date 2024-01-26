@@ -43,9 +43,10 @@
     "sidePanel",
     "webRequest",
     "webNavigation",
-    "contextMenus"
+    "contextMenus",
+    "declarativeContent"
   ],
-  "short_name": "Download",
+  "short_name": "VDownload",
   "side_panel": {
     "default_path": "panel.html"
   },

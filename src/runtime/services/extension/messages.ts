@@ -1,14 +1,13 @@
 import { Message, PayloadMessage } from "shared/message";
 
+export type ExtensionErrorMessage = PayloadMessage<"extensionError", { extensionError: Error }>;
+
 type PayloadMap = {
   fetchVideoDetails: null;
   videoDetailsFetched: {
     title: string;
     srcUrl: string;
     thumbnailUrl: string;
-  };
-  scrapeVideoDetails: {
-    pageUrl: string;
   };
   videoDetailsScraped: {
     title: string;
@@ -30,8 +29,6 @@ export type FetchVideoDetailsMessage = PayloadMessage<"fetchVideoDetails", Paylo
 
 export type VideoDetailsFetchedMessage = PayloadMessage<"videoDetailsFetched", PayloadMap>;
 
-export type ScrapeVideoDetailsMessage = PayloadMessage<"scrapeVideoDetails", PayloadMap>;
-
 export type VideoDetailsScrapedMessage = PayloadMessage<"videoDetailsScraped", PayloadMap>;
 
 export type DownloadVideoMessage = PayloadMessage<"downloadVideo", PayloadMap>;
@@ -40,9 +37,7 @@ export type VideoDownloadedMessage = PayloadMessage<"videoDownloaded", PayloadMa
 
 export type LogMessage = PayloadMessage<"logMessage", PayloadMap>;
 
-export type ScriptSyncMessage = Message<"sync">;
-
-export type ScriptSyncCompletedMessage = Message<"syncComplete">;
+export type ScrapeVideoDetailsMessage = Message<"scrapeVideoDetails">;
 
 export type VideoMessage =
   | FetchVideoDetailsMessage
@@ -51,6 +46,4 @@ export type VideoMessage =
   | VideoDetailsScrapedMessage
   | DownloadVideoMessage
   | VideoDownloadedMessage
-  | ScriptSyncMessage
-  | ScriptSyncCompletedMessage
   | LogMessage;

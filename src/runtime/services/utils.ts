@@ -1,6 +1,3 @@
-import { isExtensionMessage } from "shared/message";
-import { ScriptSyncMessage, VideoMessage } from "./extension/messages";
-
 export async function getActiveTabId(): Promise<number> {
   return new Promise<number>((resolve, reject) => {
     chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
@@ -13,80 +10,6 @@ export async function getActiveTabId(): Promise<number> {
   });
 }
 
-export async function messageContentScript<
-  Message extends VideoMessage,
-  Response extends VideoMessage
->(message: Message, tabId?: number): Promise<Response> {
-  return new Promise<Response>((resolve, reject) => {
-    if (tabId != null) {
-      syncScripts(tabId)
-        .then(() => {
-          resolve(messageContentScriptWithTabId(message, tabId));
-        })
-        .catch((error) => {
-          reject(new Error(`Failed to sync service worker with content script: ${error.message}`));
-        });
-    }
-
-    getActiveTabId()
-      .then((tabId) => {
-        chrome.tabs;
-        syncScripts(tabId)
-          .then(() => {
-            chrome.tabs.sendMessage<Message, Response>(tabId, message).then((response) => {
-              if (response == null) {
-                reject(new Error("Failed to send message to content script: no response"));
-              }
-
-              if (isExtensionMessage(response)) {
-                resolve(response);
-              }
-            });
-          })
-          .catch((error) => {
-            reject(
-              new Error(`Failed to sync service worker with content script: ${error.message}`)
-            );
-          });
-      })
-      .catch((error) => {
-        reject(new Error(`Failed to query active tab: ${error.message}`));
-      });
-  });
-}
-
-async function messageContentScriptWithTabId<
-  Message extends VideoMessage,
-  Response extends VideoMessage
->(message: Message, tabId: number): Promise<Response> {
-  return new Promise<Response>((resolve, reject) => {
-    chrome.tabs.sendMessage<Message, Response>(tabId, message).then((response) => {
-      if (response == null) {
-        reject(new Error("Failed to send message to content script: no response"));
-      }
-
-      if (isExtensionMessage(response)) {
-        resolve(response);
-      }
-    });
-  });
-}
-
-async function syncScripts(tabId: number) {
-  return new Promise<void>((resolve, reject) => {
-    chrome.tabs
-      .sendMessage<ScriptSyncMessage>(tabId, {
-        type: "extensionMessage",
-        subject: "sync"
-      })
-      .then(() => {
-        resolve();
-      })
-      .catch((error) => {
-        reject(error);
-      });
-  });
-}
 const LOG_PREFIX = "[Video Downloader Global]";
 type LogMessage = string | object | (string | object)[];
 type LogOptions = {
@@ -112,19 +35,31 @@ export function log(options: LogOptions | string): void {
       logFn = console.error;
       break;
   }
-  const logLines = [LOG_PREFIX];
 
   if (message != null) {
     if (Array.isArray(message)) {
-      logLines.push(...message);
+      let combinedLogString = [];
+
+      for (let i = 0; i < message.length; i++) {
+        const logLine = message[i];
+
+        switch (typeof logLine) {
+          case "string":
+            combinedLogString.push(logLine);
+            break;
+          case "object":
+            logFn(LOG_PREFIX, combinedLogString.join(" "));
+            logFn(LOG_PREFIX, logLine);
+            combinedLogString = [];
+            break;
+        }
+      }
     } else {
-      logLines.push(JSON.stringify(message));
+      logFn(LOG_PREFIX, message);
     }
   }
 
   if (error != null) {
-    logLines.push(["\n", "\n", error].join(""));
+    logFn("\n\n", error);
   }
-
-  logFn(logLines.join(" "));
 }
