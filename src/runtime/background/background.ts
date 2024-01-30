@@ -1,21 +1,9 @@
-import { log } from "runtime/services/utils";
+import { errorLog, infoLog } from "runtime/services/utils";
 import { backgroundRuntimeHandler } from "./message-handlers";
 
-const ServiceWorkerActiveUrls: RegExp[] = [
-  new RegExp(/^https:\/\/\S+\/video[s]\/\S+$/),
-  new RegExp(/^https:\/\/\S+\/watch\/\S+$/),
-  new RegExp(/^https:\/\/\S+\/embed\/\S+$/)
-];
-
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch((error) =>
-    log({
-      type: "fatal",
-      message: ["Unable to set extension panel behavior."],
-      error
-    })
-  );
-});
+chrome.sidePanel
+  .setPanelBehavior({ openPanelOnActionClick: true })
+  .catch((error) => console.info(errorLog("Unable to set extension panel behavior.", error)));
 
 const ContextMenuItems: Record<string, chrome.contextMenus.CreateProperties> = {
   "download-video-now": {
@@ -28,71 +16,98 @@ const ContextMenuItems: Record<string, chrome.contextMenus.CreateProperties> = {
   }
 };
 
-chrome.contextMenus.create({
-  id: ContextMenuItems["download-video-now"].id,
-  title: ContextMenuItems["download-video-now"].title,
-  contexts: ["action"]
+chrome.contextMenus.removeAll(() => {
+  chrome.contextMenus.create({
+    id: ContextMenuItems["download-video-now"].id,
+    title: ContextMenuItems["download-video-now"].title,
+    contexts: ["action"]
+  });
+
+  chrome.contextMenus.create({
+    id: ContextMenuItems["download-video-now-as"].id,
+    title: ContextMenuItems["download-video-now-as"].title,
+    contexts: ["action"]
+  });
 });
 
-chrome.contextMenus.create({
-  id: ContextMenuItems["download-video-now-as"].id,
-  title: ContextMenuItems["download-video-now-as"].title,
-  contexts: ["action"]
+const ServiceWorkerActiveUrls = [
+  new RegExp(/^https:\/\/\S+\/video[s]\/\S+$/),
+  new RegExp(/^https:\/\/\S+\/watch\/\S+$/),
+  new RegExp(/^https:\/\/\S+\/embed\/\S+$/)
+] as const;
+
+function withUrlValidation(tabUrl: string, fn: () => unknown) {
+  if (
+    !ServiceWorkerActiveUrls.some((url) => {
+      return url.test(tabUrl);
+    })
+  ) {
+    console.log(infoLog(["Service worker inactive for URL:", tabUrl ?? "Chrome"]));
+    return;
+  }
+
+  return fn();
+}
+
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+  if (changeInfo.status !== "complete") {
+    console.log(infoLog("Waiting for tab to load..."));
+    return;
+  }
+
+  withUrlValidation(tab.url, async () => {
+    await toggleContextMenuItems({ enabled: false });
+  });
 });
 
-chrome.contextMenus.onClicked.addListener((info, _tab) => {
-  switch (info.menuItemId) {
+chrome.tabs.onUpdated.addListener(async (_tabId, changeInfo, tab) => {
+  if (changeInfo.status !== "complete") {
+    console.log(infoLog("Waiting for tab to load..."));
+    return;
+  }
+
+  withUrlValidation(tab.url, async () => {
+    chrome.runtime.onConnect.addListener((port) => {
+      console.log(
+        infoLog([
+          "Connection established in service worker:",
+          port?.name ?? "Unrecognized port",
+          "Sender:",
+          port.sender
+        ])
+      );
+
+      chrome.contextMenus.onClicked.addListener((event) =>
+        contextMenuItemClickHandler(event, port)
+      );
+
+      port.onMessage.addListener(backgroundRuntimeHandler);
+    });
+  });
+});
+
+function contextMenuItemClickHandler(
+  event: chrome.contextMenus.OnClickData,
+  port: chrome.runtime.Port
+) {
+  switch (event.menuItemId) {
     case ContextMenuItems["download-video-now"].id: {
-      // TODO: Implement.
-      break;
+      port.postMessage({
+        type: "extensionMessage",
+        subject: "scrapeVideoDetails"
+      });
+
+      return true;
     }
     case ContextMenuItems["download-video-now-as"].id: {
       // TODO: Implement.
       break;
     }
     default: {
-      throw new Error(`Unhandled context menu item id '${info.menuItemId}'.`);
+      throw new Error(`Unhandled context menu item id '${event.menuItemId}'.`);
     }
   }
-});
-
-chrome.tabs.onHighlighted.addListener(async (highlightInfo) => {
-  log({ message: ["Tab highlighted:", highlightInfo] });
-  const tabId = highlightInfo.tabIds[0];
-
-  chrome.tabs.get(tabId, async (tab) => {
-    if (tab.id !== tabId) {
-      log({
-        message: ["Unable to get tab details."]
-      });
-      return;
-    }
-
-    log({ message: ["Tab details:", tab] });
-    if (
-      !ServiceWorkerActiveUrls.some((url) => {
-        console.log(url);
-        console.log(tab.url);
-        console.log(url.exec(tab.url));
-        return url.test(tab.url);
-      })
-    ) {
-      console.log("Disabling menu items");
-      log({
-        type: "info",
-        message: ["Service worker inactive for URL:", tab.url ?? "Chrome"]
-      });
-      await toggleContextMenuItems({ enabled: false });
-      return;
-    }
-
-    const port = chrome.tabs.connect(tabId);
-
-    port.onMessage.addListener(backgroundRuntimeHandler);
-
-    // chrome.webNavigation.onCompleted.addListener(handleWebNavigationMessage);
-  });
-});
+}
 
 async function toggleContextMenuItems(options: { enabled: boolean }): Promise<void> {
   const toggleMenuItem = (menuItemId: string, enabled: boolean) => {
@@ -103,9 +118,9 @@ async function toggleContextMenuItems(options: { enabled: boolean }): Promise<vo
 
   for (const [name, menuItem] of Object.entries(ContextMenuItems)) {
     await toggleMenuItem(menuItem.id, options.enabled ?? true);
-    log({
-      message: [`Context menu item '${name}' ${options.enabled ? "enabled" : "disabled"}.`]
-    });
+    console.log(
+      infoLog([`Context menu item '${name}' ${options.enabled ? "enabled" : "disabled"}.`])
+    );
   }
 }
 

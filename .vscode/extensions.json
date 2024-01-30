@@ -20,7 +20,6 @@
     "markosth09.color-picker",
     "github.copilot",
     "aaravb.chrome-extension-developer-tools",
-    "cezaraugusto.vscode-chrome-extesion-manifest-json-schema",
-    "kuscamara.remove-unused-imports"
+    "cezaraugusto.vscode-chrome-extesion-manifest-json-schema"
   ]
 }

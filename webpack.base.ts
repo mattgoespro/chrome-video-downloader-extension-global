@@ -21,8 +21,7 @@ const config: Configuration = {
   entry: {
     extension: path.join(rendererPath, "extension.tsx"),
     contentScript: path.join(contentScriptPath, "contentScript.ts"),
-    background: path.join(runtimePath, "background", "background.ts"),
-    contextMenu: path.join(runtimePath, "background", "contextMenu.ts")
+    background: path.join(runtimePath, "background", "background.ts")
   },
   output: {
     path: distPath,

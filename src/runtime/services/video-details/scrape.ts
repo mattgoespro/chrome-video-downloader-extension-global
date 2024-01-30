@@ -1,6 +1,6 @@
 import { ExtensionError } from "../extension/errors";
 import { ExtensionErrorMessage, VideoMessage } from "../extension/messages";
-import { log } from "../utils";
+import { infoLog } from "../utils";
 import { VideoDetail } from "./model";
 
 export function scrapeVideoDetailsFromPage(): VideoDetail | undefined {
@@ -29,8 +29,8 @@ function scrapeVideoDetailsFromElements(
   const thumbnailUrl = scrapeThumbnailUrl(thumbnailElement);
   const details: VideoDetail = { title, srcUrl, thumbnailUrl };
 
-  log({
-    message: [
+  console.log(
+    infoLog([
       "Scraped video details.",
       "\n\nTitle:",
       title,
@@ -38,8 +38,8 @@ function scrapeVideoDetailsFromElements(
       srcUrl,
       "\nThumbnail URL:",
       thumbnailUrl
-    ]
-  });
+    ])
+  );
 
   if (!title || !srcUrl || !thumbnailUrl) {
     throw new ExtensionError("VideoDetailError", {

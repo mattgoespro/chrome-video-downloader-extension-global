@@ -1,5 +1,5 @@
 import { VideoMessage } from "runtime/services/extension/messages";
-import { log } from "runtime/services/utils";
+import { errorLog, infoLog, warnLog } from "runtime/services/utils";
 import { scrapeVideoDetailsFromPage } from "runtime/services/video-details/scrape";
 import { isExtensionMessage } from "shared/message";
 
@@ -7,38 +7,45 @@ export async function contentScriptRuntimeHandler(
   message: VideoMessage,
   port: chrome.runtime.Port
 ) {
+  console.log(infoLog(["Handling message", message]));
+
   if (!isExtensionMessage(message)) {
-    log({
-      message: ["Skipping handling of non-extension message", message],
-      type: "warn"
-    });
-    return;
+    console.log(
+      warnLog({
+        message: ["Skipping handling of non-extension message", message]
+      })
+    );
+    return true;
   }
+
+  console.log(message.subject);
 
   switch (message.subject) {
     case "scrapeVideoDetails": {
+      console.log("Scraping video details from page...");
+
       try {
         port.postMessage({
           type: "extensionMessage",
           subject: "videoDetailsScraped",
           payload: scrapeVideoDetailsFromPage()
         });
-        return;
+        return true;
       } catch (error) {
+        console.log(errorLog("Unable to scrape video details.", error));
         port.postMessage({
           type: "extensionMessage",
           subject: "extensionError",
           payload: error
         });
-        return;
+        return false;
       }
     }
     default:
-      log({
-        message: [`Unhandled extension message in content script`, message.subject],
-        type: "warn"
-      });
+      console.warn(warnLog(["Unhandled extension message in content script:", message.subject]));
   }
+
+  return true;
 }
 
 export function handleScrapeVideoDetailsMessage(): void {}

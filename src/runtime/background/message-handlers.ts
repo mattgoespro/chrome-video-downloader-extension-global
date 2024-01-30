@@ -1,13 +1,10 @@
 import { DownloadVideoMessage, VideoMessage } from "runtime/services/extension/messages";
-import { log } from "runtime/services/utils";
+import { infoLog, warnLog } from "runtime/services/utils";
 import { isExtensionMessage } from "shared/message";
 
-export async function backgroundRuntimeHandler(
-  message: VideoMessage,
-  port: chrome.runtime.Port
-): Promise<void> {
+export async function backgroundRuntimeHandler(message: VideoMessage, port: chrome.runtime.Port) {
   if (!isExtensionMessage(message)) {
-    return;
+    return true;
   }
 
   switch (message.subject) {
@@ -18,15 +15,13 @@ export async function backgroundRuntimeHandler(
           subject: "scrapeVideoDetails"
         });
       } catch (e) {
-        log({
-          message: ["Unable to scrape video details.", e],
-          type: "warn"
-        });
+        console.warn(warnLog("Unable to scrape video details.", e));
         return;
       }
       break;
     }
     case "videoDetailsScraped": {
+      console.log(infoLog(["Video details scraped.", message.payload]));
       try {
         port.postMessage({
           type: "extensionMessage",
@@ -34,11 +29,8 @@ export async function backgroundRuntimeHandler(
           payload: message.payload
         });
       } catch (e) {
-        log({
-          message: ["Unable to fetch video details.", e],
-          type: "warn"
-        });
-        return;
+        console.log(warnLog("Unable to fetch video details.", e));
+        return false;
       }
       break;
     }
@@ -47,11 +39,15 @@ export async function backgroundRuntimeHandler(
       break;
     }
     default:
-      log({
-        message: [`Unhandled extension message in service worker:`, message.subject],
-        type: "warn"
-      });
+      console.warn(
+        warnLog({
+          message: [`Unhandled extension message in service worker:`, message.subject],
+          type: "warn"
+        })
+      );
   }
+
+  return true;
 }
 
 async function handleDownloadVideoMessage(message: DownloadVideoMessage): Promise<void> {

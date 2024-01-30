@@ -1,13 +1,9 @@
-import { log } from "runtime/services/utils";
+import { errorLog } from "runtime/services/utils";
 import { contentScriptRuntimeHandler } from "./message-handlers";
 
-const port = chrome.runtime.connect();
-
-chrome.runtime.onConnect.addListener(() => {
-  log({
-    type: "info",
-    message: ["Connected to extension runtime."]
-  });
-
-  port.onMessage.addListener(contentScriptRuntimeHandler);
-});
+try {
+  const contentScriptPort = chrome.runtime.connect();
+  contentScriptPort.onMessage.addListener(contentScriptRuntimeHandler);
+} catch (error) {
+  console.error(errorLog("Unable to connect to service worker.", error));
+}

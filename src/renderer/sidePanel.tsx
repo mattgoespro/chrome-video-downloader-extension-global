@@ -1,13 +1,6 @@
 import { useState, useEffect } from "react";
-import {
-  VideoMessage,
-  VideoDetailsFetchedMessage,
-  FetchVideoDetailsMessage,
-  DownloadVideoMessage
-} from "runtime/services/extension/messages";
-import { log } from "runtime/services/utils";
+import { VideoMessage, VideoDetailsFetchedMessage } from "runtime/services/extension/messages";
 import { VideoDetail } from "runtime/services/video-details/model";
-import { isExtensionMessage } from "shared/message";
 import { VideoDetails } from "./videoDetails";
 
 export const SidePanel = () => {
@@ -15,22 +8,17 @@ export const SidePanel = () => {
   const [videoDetails, setVideoDetails] = useState<VideoDetail>(undefined);
 
   chrome.runtime.onMessage.addListener((message: VideoMessage) => {
-    if (!isExtensionMessage(message)) {
-      log("Skipping handling of non-extension message...");
-      return;
-    }
-
     if (message.subject === "videoDetailsFetched") {
       setVideoDetails((message as VideoDetailsFetchedMessage).payload);
     }
   });
 
   useEffect(() => {
-    chrome.runtime.sendMessage<FetchVideoDetailsMessage>({
-      type: "extensionMessage",
-      subject: "fetchVideoDetails",
-      payload: null
-    });
+    // chrome.runtime.sendMessage<FetchVideoDetailsMessage>({
+    //   type: "extensionMessage",
+    //   subject: "fetchVideoDetails",
+    //   payload: null
+    // });
   }, []);
 
   const handleFileNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,14 +26,14 @@ export const SidePanel = () => {
   };
 
   const handleDownloadClick = async () => {
-    chrome.runtime.sendMessage<DownloadVideoMessage>({
-      type: "extensionMessage",
-      subject: "downloadVideo",
-      payload: {
-        srcUrl: videoDetails.srcUrl,
-        fileName: videoFileName ?? videoDetails.title
-      }
-    });
+    // chrome.runtime.sendMessage<DownloadVideoMessage>({
+    //   type: "extensionMessage",
+    //   subject: "downloadVideo",
+    //   payload: {
+    //     srcUrl: videoDetails.srcUrl,
+    //     fileName: videoFileName ?? videoDetails.title
+    //   }
+    // });
   };
 
   return (

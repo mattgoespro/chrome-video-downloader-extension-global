@@ -23,8 +23,7 @@
         "https://*/*/watch/*",
         "https://*/embed/*",
         "https://*/*/embed/*"
-      ],
-      "run_at": "document_end"
+      ]
     }
   ],
   "description": "Download videos from a web page.",
