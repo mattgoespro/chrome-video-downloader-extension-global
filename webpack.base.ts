@@ -70,7 +70,7 @@ const config: Configuration = {
       filename: "panel.html",
       template: path.join(publicPath, "panel.html"),
       inject: "body",
-      chunks: ["extension", "contentScript", "background"],
+      chunks: ["extension"],
       hash: false
     }),
     new CopyWebpackPlugin({

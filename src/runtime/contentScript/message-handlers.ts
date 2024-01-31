@@ -18,8 +18,6 @@ export async function contentScriptRuntimeHandler(
     return true;
   }
 
-  console.log(message.subject);
-
   switch (message.subject) {
     case "scrapeVideoDetails": {
       console.log("Scraping video details from page...");

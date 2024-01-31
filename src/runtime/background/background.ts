@@ -1,4 +1,6 @@
+import { VideoDetailsScrapedMessage } from "runtime/services/extension/messages";
 import { errorLog, infoLog } from "runtime/services/utils";
+import { scrapeVideoDetailsFromPage } from "runtime/services/video-details/scrape";
 import { backgroundRuntimeHandler } from "./message-handlers";
 
 chrome.sidePanel
@@ -124,42 +126,34 @@ async function toggleContextMenuItems(options: { enabled: boolean }): Promise<vo
   }
 }
 
-// export async function handleWebNavigationMessage(
-//   details: chrome.webNavigation.WebNavigationFramedCallbackDetails
-// ): Promise<void> {
-//   if (details.frameType === "sub_frame" && details.url.includes("embed")) {
-//     console.log("Scraping video details from page...");
-//     return new Promise<void>((resolve, reject) => {
-//       const target = { tabId: details.tabId, frameIds: [details.frameId] };
+export async function handleWebNavigationMessage(
+  details: chrome.webNavigation.WebNavigationFramedCallbackDetails
+): Promise<void> {
+  if (details.frameType === "sub_frame" && details.url.includes("embed")) {
+    return new Promise<void>((resolve, reject) => {
+      const target = { tabId: details.tabId, frameIds: [details.frameId] };
 
-//       chrome.scripting
-//         .executeScript({
-//           target,
-//           func: scrapeVideoDetailsFromPage
-//         })
-//         .then(([injectionResult]) => {
-//           const videoDetails = injectionResult.result;
+      chrome.scripting
+        .executeScript({
+          target,
+          func: scrapeVideoDetailsFromPage
+        })
+        .then(([injectionResult]) => {
+          const videoDetails = injectionResult.result;
 
-//           log({
-//             type: "info",
-//             message: [`Video details scraped from page:`, videoDetails]
-//           });
+          console.log(infoLog([`Video details scraped from page:`, videoDetails]));
 
-//           chrome.runtime.sendMessage<VideoDetailsScrapedMessage>({
-//             type: "extensionMessage",
-//             subject: "videoDetailsScraped",
-//             payload: videoDetails
-//           });
-//           resolve();
-//         })
-//         .catch((error) => {
-//           log({
-//             type: "warn",
-//             message: "Unable to inject script into page.",
-//             error
-//           });
-//           reject(error);
-//         });
-//     });
-//   }
-// }
+          chrome.runtime.sendMessage<VideoDetailsScrapedMessage>({
+            type: "extensionMessage",
+            subject: "videoDetailsScraped",
+            payload: videoDetails
+          });
+          resolve();
+        })
+        .catch((error) => {
+          errorLog("Unable to inject script into page.", error);
+          reject(error);
+        });
+    });
+  }
+}
