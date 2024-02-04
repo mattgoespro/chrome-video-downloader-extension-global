@@ -13,45 +13,58 @@ export async function getActiveTabId(): Promise<number> {
 type LogMessage = string | object | (string | object)[];
 
 function logObjectToString(message: LogMessage, error?: Error): string {
-  const LOG_PREFIX = "[Video Downloader Global]";
+  const LOG_PREFIX = "[Video Downloader Global] ";
 
-  const combinedLogString = [];
+  const combinedLogString: string[] = [LOG_PREFIX];
 
-  if (Array.isArray(message)) {
-    let logStringSequence = [LOG_PREFIX];
+  if (typeof message === "string") {
+    return `${LOG_PREFIX} ${message}`;
+  } else if (Array.isArray(message)) {
+    let logStringSequence = [];
 
     for (let i = 0; i < message.length; i++) {
-      const logLine = message[i];
+      const logObject = message[i];
 
-      switch (typeof logLine) {
+      switch (typeof logObject) {
         case "string":
-          logStringSequence.push(logLine);
+          logStringSequence.push(logObject);
+          continue;
+        case "object": {
+          let objString = "null";
+
+          if (logObject != null) {
+            objString = JSON.stringify(logObject, null, 2);
+          }
+
+          combinedLogString.push(logStringSequence.join(" "), "\n", objString);
+          logStringSequence = [];
           break;
-        case "object":
-          combinedLogString.push(logStringSequence.join(" "), "\n");
-          logStringSequence = [LOG_PREFIX];
-          break;
+        }
       }
     }
+
+    if (logStringSequence.length > 0) {
+      combinedLogString.push(logStringSequence.join(" "));
+    }
   } else {
-    combinedLogString.push(LOG_PREFIX, message);
+    combinedLogString.push("\n", JSON.stringify(message, null, 2));
   }
 
   if (error != null) {
-    combinedLogString.push("\n\n", error);
+    combinedLogString.push("\n\n", JSON.stringify(error, null, 2));
   }
 
-  return combinedLogString.join("\n");
+  return combinedLogString.join("");
 }
 
 export function infoLog(message: LogMessage): string {
-  return logObjectToString({ message });
+  return logObjectToString(message);
 }
 
 export function warnLog(message: LogMessage, error?: Error): string {
-  return logObjectToString({ message, error });
+  return logObjectToString(message, error);
 }
 
 export function errorLog(message: LogMessage, error: Error): string {
-  return logObjectToString({ message, error });
+  return logObjectToString(message, error);
 }

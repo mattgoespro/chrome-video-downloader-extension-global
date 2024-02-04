@@ -3,14 +3,12 @@
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
-    "declaration": true,
-    "declarationDir": "./dist/types",
     "esModuleInterop": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
     "lib": ["es2017", "dom", "dom.iterable"],
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "paths": {
       "runtime/*": ["src/runtime/*"],
       "shared/*": ["src/shared/*"],
@@ -22,8 +20,9 @@
     "sourceMap": true,
     "sourceRoot": "./src",
     "target": "es6",
-    "types": ["node", "chrome"],
+    "types": ["node", "chrome", "./typings/types.d.ts"],
     "useDefineForClassFields": true
   },
-  "include": ["src", "webpack.dev.ts"]
+  "include": ["src", "tools", "typings", "webpack"],
+  "files": ["webpack.config.ts"]
 }

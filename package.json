@@ -8,8 +8,8 @@
     "node": ">=10.0.0"
   },
   "scripts": {
-    "start": "cross-env TARGET_BROWSER=chrome MODE=development cross-env webpack --config webpack.dev.ts --watch",
-    "build": "cross-env TARGET_BROWSER=chrome MODE=production cross-env webpack --config webpack.prod.ts",
+    "start": "cross-env TARGET_BROWSER=chrome MODE=development cross-env webpack --config webpack.config.ts --watch",
+    "build": "cross-env TARGET_BROWSER=chrome MODE=production cross-env webpack --config webpack.config.ts",
     "lint": "eslint . --ext .ts,.tsx"
   },
   "dependencies": {

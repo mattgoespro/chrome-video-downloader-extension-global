@@ -5,29 +5,37 @@ import FaviconsWebpackPlugin from "favicons-webpack-plugin";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import TsConfigPathsWebpackPlugin from "tsconfig-paths-webpack-plugin";
 import { Configuration, EnvironmentPlugin } from "webpack";
+import { WebpackConfigEntryMap, createWebpackEntries, findFile } from "./utils.config";
+import variables from "./variables.config";
 
-export const srcPath = path.join(__dirname, "src");
-export const extensionManifestPath = path.join(srcPath, "manifest.json");
+const entryMap: WebpackConfigEntryMap = {
+  renderer: {
+    extension: {
+      srcFilePath: findFile(variables.srcPath, "extension.tsx"),
+      outputFilePath: variables.rendererOutputDir
+    }
+  },
+  runtime: {
+    background: {
+      srcFilePath: findFile(variables.runtimeSrcPath, "background.ts"),
+      outputFilePath: variables.runtimeOutputDir
+    },
+    contentScript: {
+      srcFilePath: findFile(variables.runtimeSrcPath, "contentScript.ts"),
+      outputFilePath: variables.runtimeOutputDir
+    }
+  }
+};
 
-const runtimePath = path.join(srcPath, "runtime");
-const rendererPath = path.join(srcPath, "renderer");
-const publicPath = path.join(__dirname, "public");
-const distPath = path.join(__dirname, "dist");
-const contentScriptPath = path.join(runtimePath, "contentScript");
+const webpackEntries = createWebpackEntries(entryMap);
 
 const config: Configuration = {
-  context: __dirname, // Favicon webpack plugin resolves paths relative to webpack context
+  context: __dirname, // favicon webpack plugin resolves paths relative current directory
   stats: "errors-warnings",
-  entry: {
-    extension: path.join(rendererPath, "extension.tsx"),
-    contentScript: path.join(contentScriptPath, "contentScript.ts"),
-    background: path.join(runtimePath, "background", "background.ts")
-  },
+  entry: webpackEntries,
   output: {
-    path: distPath,
-    filename: "js/[name].js",
-    publicPath: "./",
-    sourceMapFilename: "[file].map"
+    path: path.resolve(__dirname, variables.outputPath),
+    filename: `[name].js`
   },
   resolve: {
     extensions: [".ts", ".tsx", ".js", ".json"],
@@ -38,7 +46,7 @@ const config: Configuration = {
     },
     plugins: [
       new TsConfigPathsWebpackPlugin({
-        configFile: path.join(__dirname, "tsconfig.json")
+        configFile: path.join(__dirname, "..", "tsconfig.json")
       })
     ]
   },
@@ -53,7 +61,7 @@ const config: Configuration = {
         use: [
           {
             loader: "babel-loader",
-            options: { include: [path.resolve(srcPath)] }
+            options: { include: [path.resolve(variables.srcPath)] }
           }
         ],
         exclude: /node_modules/
@@ -63,26 +71,27 @@ const config: Configuration = {
   plugins: [
     new EnvironmentPlugin(["TARGET_BROWSER", "MODE"]),
     new CleanWebpackPlugin({
-      cleanAfterEveryBuildPatterns: [path.join(distPath, "js", "manifest.js")],
+      cleanAfterEveryBuildPatterns: [path.join(variables.outputPath, "js", "manifest.js")],
       verbose: true
     }),
     new HtmlWebpackPlugin({
       filename: "panel.html",
-      template: path.join(publicPath, "panel.html"),
+      template: path.join(variables.publicPath, "panel.html"),
       inject: "body",
       chunks: ["extension"],
-      hash: false
+      hash: false,
+      scriptLoading: "module"
     }),
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: extensionManifestPath,
-          to: path.join(distPath, "manifest.json")
+          from: `${variables.srcPath}/manifest.json`,
+          to: "manifest.json" // 'to' path is relative to output.path
         }
       ]
     }),
     new FaviconsWebpackPlugin({
-      logo: path.join(publicPath, "assets", "logo.png"),
+      logo: path.join(variables.publicPath, "assets", "logo.png"),
       mode: "webapp",
       cache: true,
       favicons: {

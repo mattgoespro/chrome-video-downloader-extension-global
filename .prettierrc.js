@@ -5,6 +5,6 @@ module.exports = {
   printWidth: 100,
   singleQuote: false,
   trailingComma: "none",
-  endOfLine: "lf",
-  jsxSingleQuote: false,
+  endOfLine: "auto",
+  jsxSingleQuote: false
 };

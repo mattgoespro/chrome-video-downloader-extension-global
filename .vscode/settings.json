@@ -58,5 +58,27 @@
   "typescript.format.enable": false,
   "typescript.tsdk": "node_modules\\typescript\\lib",
   "typescript.updateImportsOnFileMove.enabled": "always",
-  "workbench.iconTheme": "material-icon-theme"
+  "workbench.iconTheme": "material-icon-theme",
+  "editor.defaultFoldingRangeProvider": "esbenp.prettier-vscode",
+  "github.copilot.chat.welcomeMessage": "never",
+  "github.copilot.advanced": {
+    "inlineSuggestCount": 10,
+    "maxSuggestions": 10,
+    "indentationMode": {
+      "javascript": false,
+      "jsx": false,
+      "typescript": false,
+      "typescriptreact": false,
+      "*": true
+    },
+    "useTab": {
+      "*": true
+    },
+    "length": 200,
+    "listCount": 20,
+    "stops": {
+      "typescript": ["\n", "\n\n\n", "*"]
+    },
+    "temperature": "1.0"
+  }
 }
