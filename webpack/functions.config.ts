@@ -1,12 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { EntryObject, EntryDescription, Configuration } from "webpack";
-
-export type WebpackConfigEntry = {
-  [key: string]: { srcFilePath: string; outputFilePath: string };
-};
-
-export type WebpackConfigEntryMap = { renderer: WebpackConfigEntry; runtime: WebpackConfigEntry };
+import { WebpackConfigEntrySourceMap } from "./types.config";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 export const ExtensionReloaderWebpackPlugin = require("webpack-ext-reloader"); // 'webpack-ext-reloader' types are broken
@@ -31,7 +26,7 @@ export function findFile(directory: string, fileName: string): string | null {
   return null;
 }
 
-export function createWebpackEntries(entryMap: WebpackConfigEntryMap): {
+export function createWebpackEntries(entryMap: WebpackConfigEntrySourceMap): {
   [key: string]: EntryDescription;
 } {
   return Object.entries(entryMap).reduce((acc, [entryFileType, fileEntry]) => {
@@ -46,7 +41,7 @@ export function createWebpackEntries(entryMap: WebpackConfigEntryMap): {
         );
         const fileEntryDescription: EntryDescription = {
           import: entryData.srcFilePath,
-          filename: `${entryData.outputFilePath}/${entryOutputFile}.js`
+          filename: `${entryData.buildOutputDir}/${entryOutputFile}.js`
         };
 
         console.log(

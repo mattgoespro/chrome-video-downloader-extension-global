@@ -4,7 +4,7 @@ import baseConfig from "./base.config";
 import {
   ExtensionReloaderWebpackPlugin,
   createExtReloaderEntryConfigFromWebpack
-} from "./utils.config";
+} from "./functions.config";
 import variables from "./variables.config";
 
 // console.log(

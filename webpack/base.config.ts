@@ -5,24 +5,25 @@ import FaviconsWebpackPlugin from "favicons-webpack-plugin";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import TsConfigPathsWebpackPlugin from "tsconfig-paths-webpack-plugin";
 import { Configuration, EnvironmentPlugin } from "webpack";
-import { WebpackConfigEntryMap, createWebpackEntries, findFile } from "./utils.config";
+import { createWebpackEntries, findFile } from "./functions.config";
+import { WebpackConfigEntrySourceMap } from "./types.config";
 import variables from "./variables.config";
 
-const entryMap: WebpackConfigEntryMap = {
+const entryMap: WebpackConfigEntrySourceMap = {
   renderer: {
     extension: {
       srcFilePath: findFile(variables.srcPath, "extension.tsx"),
-      outputFilePath: variables.rendererOutputDir
+      buildOutputDir: variables.rendererOutputDir
     }
   },
   runtime: {
     background: {
       srcFilePath: findFile(variables.runtimeSrcPath, "background.ts"),
-      outputFilePath: variables.runtimeOutputDir
+      buildOutputDir: variables.runtimeOutputDir
     },
     contentScript: {
       srcFilePath: findFile(variables.runtimeSrcPath, "contentScript.ts"),
-      outputFilePath: variables.runtimeOutputDir
+      buildOutputDir: variables.runtimeOutputDir
     }
   }
 };

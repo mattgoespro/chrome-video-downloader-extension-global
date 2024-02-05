@@ -24,5 +24,5 @@
     "useDefineForClassFields": true
   },
   "include": ["src", "tools", "typings", "webpack"],
-  "files": ["webpack.config.ts"]
+  "files": ["webpack.config.ts", "webpack/types.config.ts"]
 }
