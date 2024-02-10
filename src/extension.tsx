@@ -1,5 +1,5 @@
 import { createRoot } from "react-dom/client";
-import { SidePanel } from "./sidePanel";
+import { SidePanel } from "./renderer/sidePanel";
 
 window.addEventListener("DOMContentLoaded", () => {
   const rootElement = document.getElementById("root");

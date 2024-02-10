@@ -1,14 +1,13 @@
-import path from "path";
-import { Configuration } from "webpack";
 import developmentConfig from "./webpack/development.config";
+import { pathRelativeToWorkspace } from "./webpack/functions.config";
 import productionConfig from "./webpack/production.config";
 
 const workspacePath = ".";
 
-const srcPath = `${workspacePath}/src`;
-const publicPath = `${workspacePath}/public`;
-const outputPath = `${workspacePath}/dist`;
-const jsOutputDirName = `${workspacePath}/js`;
+const srcPath = pathRelativeToWorkspace(workspacePath, "src");
+const publicPath = pathRelativeToWorkspace(workspacePath, "public");
+const outputPath = pathRelativeToWorkspace(workspacePath, "dist");
+const jsOutputDirName = `js`;
 
 /**
  * Configuration paths relative to the directory containing this file.
@@ -17,36 +16,26 @@ const variables = {
   workspacePath,
   srcPath,
   publicPath,
-  outputPath,
   jsOutputDirName,
   runtimeSrcPath: `${srcPath}/runtime`,
-  rendererSrcPath: `${srcPath}/renderer`,
-  runtimeOutputDir: `${jsOutputDirName}/runtime`,
-  rendererOutputDir: `${jsOutputDirName}/renderer`
+  rendererSrcPath: `${srcPath}/renderer`
 };
+
+console.log(variables);
 
 export type WebpackVariables = typeof variables;
 
-// export function absolutePath(variable: keyof WebpackVariables, ...pathParts: string[]): string {
-//   console.log(variables);
-//   console.log(variable);
-//   console.log(variables[variable]);
-//   return path.resolve(__dirname, variables[variable], ...(pathParts ?? []));
-// }
-
-let config: Configuration = null;
+let config = null;
 
 switch (process.env.MODE) {
   case "development":
-    config = developmentConfig(variables);
+    config = developmentConfig(variables, outputPath);
     break;
   case "production":
-    config = productionConfig(variables);
+    config = productionConfig(variables, outputPath);
     break;
   default:
     throw new Error("'MODE' is not set");
 }
-
-console.log(config);
 
 export default config;

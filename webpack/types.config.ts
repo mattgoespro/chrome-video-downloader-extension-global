@@ -1,8 +1,7 @@
 export type WebpackConfigEntrySource = {
-  [key: string]: { srcFilePath: string; buildOutputDir: string };
+  [key: string]: { srcFilePath: string };
 };
 
 export type WebpackConfigEntrySourceMap = {
-  renderer: WebpackConfigEntrySource;
-  runtime: WebpackConfigEntrySource;
+  [key: string]: { srcFilePath: string } | string;
 };

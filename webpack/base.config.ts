@@ -4,57 +4,45 @@ import CopyWebpackPlugin from "copy-webpack-plugin";
 import FaviconsWebpackPlugin from "favicons-webpack-plugin";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import TsConfigPathsWebpackPlugin from "tsconfig-paths-webpack-plugin";
-import { Configuration, EnvironmentPlugin } from "webpack";
+import { EnvironmentPlugin, ExtensionConfiguration, ExtensionOutput } from "webpack";
 import { WebpackVariables } from "../webpack.config";
-import { createWebpackEntries, findFile } from "./functions.config";
-import { WebpackConfigEntrySourceMap } from "./types.config";
+import { findFile, createWebpackEntries } from "./functions.config";
 
-const baseConfig: (webpackVariables: WebpackVariables) => Configuration = (variables) => {
-  const entryMap: WebpackConfigEntrySourceMap = {
-    renderer: {
-      extension: {
-        srcFilePath: findFile(variables.rendererSrcPath, "extension.tsx"),
-        buildOutputDir: variables.rendererOutputDir
-      }
+const baseConfig: (
+  webpackVariables: WebpackVariables,
+  outputPath: string
+) => ExtensionConfiguration = (variables, outputPath) => {
+  const entryMap = {
+    extension: findFile(variables.srcPath, "extension.tsx"),
+    background: {
+      srcFilePath: findFile(variables.runtimeSrcPath, "background.ts")
     },
-    runtime: {
-      background: {
-        srcFilePath: findFile(variables.runtimeSrcPath, "background.ts"),
-        buildOutputDir: variables.runtimeOutputDir
-      },
-      contentScript: {
-        srcFilePath: findFile(variables.runtimeSrcPath, "contentScript.ts"),
-        buildOutputDir: variables.runtimeOutputDir
-      }
+    contentScript: {
+      srcFilePath: findFile(variables.runtimeSrcPath, "contentScript.ts")
     }
   };
 
-  console.table(entryMap.renderer);
-  console.table(entryMap.runtime);
+  const webpackOutput: ExtensionOutput = {
+    path: path.resolve(outputPath),
+    filename: `js/[name].js` // generates the entry output filename when the entry itself does not defined it
+  };
 
-  const webpackEntries = createWebpackEntries(entryMap);
-
-  console.log(`\n\nCreated Webpack entries based on the provided entry map.\n`);
-  console.table(webpackEntries);
+  const extensionEntries = createWebpackEntries(entryMap, webpackOutput, variables);
+  console.log("[webpack] Converted extension entry map to webpack entry map:");
+  console.log(extensionEntries);
 
   return {
     context: __dirname, // favicon webpack plugin resolves paths relative current directory
     stats: "errors-warnings",
-    // entry: webpackEntries,
-    entry: {
-      extension: {
-        import: entryMap.renderer["extension"].srcFilePath
-      }
-    },
-    output: {
-      path: path.resolve(__dirname, variables.outputPath),
-      filename: `[name].js`
-    },
+    entry: extensionEntries,
+    output: webpackOutput,
     resolve: {
       extensions: [".ts", ".tsx", ".js", ".json"],
       alias: {
         "webextension-polyfill-ts": path.resolve(
-          path.join(__dirname, "node_modules", "webextension-polyfill-ts")
+          __dirname,
+          "node_modules",
+          "webextension-polyfill-ts"
         )
       },
       plugins: [
@@ -88,7 +76,7 @@ const baseConfig: (webpackVariables: WebpackVariables) => Configuration = (varia
       }),
       new HtmlWebpackPlugin({
         filename: "panel.html",
-        template: path.join(variables.publicPath, "panel.html"),
+        template: path.resolve(variables.publicPath, "panel.html"),
         inject: "body",
         chunks: ["extension"],
         hash: false,
@@ -103,7 +91,7 @@ const baseConfig: (webpackVariables: WebpackVariables) => Configuration = (varia
         ]
       }),
       new FaviconsWebpackPlugin({
-        logo: path.join(variables.publicPath, "assets", "logo.png"),
+        logo: path.resolve(variables.publicPath, "assets", "logo.png"),
         mode: "webapp",
         cache: true,
         favicons: {

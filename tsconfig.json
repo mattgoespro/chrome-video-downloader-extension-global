@@ -19,7 +19,7 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "sourceRoot": "./src",
-    "target": "es6",
+    "target": "esnext",
     "types": ["node", "chrome", "./typings/types.d.ts"],
     "useDefineForClassFields": true
   },

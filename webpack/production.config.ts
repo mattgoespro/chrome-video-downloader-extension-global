@@ -4,9 +4,11 @@ import { merge } from "webpack-merge";
 import { WebpackVariables } from "../webpack.config";
 import baseConfig from "./base.config";
 
-const prodConfig: (variables: WebpackVariables) => Configuration = (variables) => {
-  console.log(`\n\n`);
-  return merge(baseConfig(variables), {
+const prodConfig: (variables: WebpackVariables, outputPath: string) => Configuration = (
+  variables,
+  outputPath
+) => {
+  return merge(baseConfig(variables, outputPath), {
     mode: "production",
     optimization: {
       minimize: true,

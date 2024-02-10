@@ -1,11 +1,20 @@
 import fs from "fs";
 import path from "path";
-import { EntryObject, EntryDescription, Configuration } from "webpack";
+import { ExtensionConfiguration, ExtensionOutput, ExtensionEntries } from "webpack";
 import { ExtensionReloader } from "webpack-ext-reloader";
+import { WebpackVariables } from "webpack.config";
 import { WebpackConfigEntrySourceMap } from "./types.config";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 export const ExtensionReloaderWebpackPlugin: typeof ExtensionReloader = require("webpack-ext-reloader"); // 'webpack-ext-reloader' types are broken
+
+export function pause(time = 1000) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(true);
+    }, time);
+  });
+}
 
 export function findFile(directory: string, fileName: string): string | null {
   let dir = directory;
@@ -33,71 +42,92 @@ export function findFile(directory: string, fileName: string): string | null {
   return null;
 }
 
-export function createWebpackEntries(entryMap: WebpackConfigEntrySourceMap): {
-  [key: string]: EntryDescription;
-} {
-  return Object.entries(entryMap).reduce((acc, [entryFileType, fileEntry]) => {
-    console.log(`\n[webpack] Creating entries for '${entryFileType}'...`);
+export function pathRelativeToWorkspace(workspaceDirPath: string, toPath: string) {
+  return path.relative(workspaceDirPath, toPath);
+}
 
+function relativeWorkspaceFileOutputPath(
+  workspaceDirPath: string,
+  importFilePath: string,
+  outputDirPath: string
+) {
+  const outputDirName = path.basename(outputDirPath);
+
+  return pathRelativeToWorkspace(
+    workspaceDirPath,
+    path.join(outputDirName, path.relative(workspaceDirPath, importFilePath))
+  );
+}
+
+export function createWebpackEntries(
+  entryMap: WebpackConfigEntrySourceMap,
+  outputConfig: ExtensionOutput,
+  variables: WebpackVariables
+): ExtensionEntries {
+  return Object.entries(entryMap).reduce((acc, [entryKey, fileEntry]) => {
+    if (typeof fileEntry === "string") {
+      console.log(`[webpack] Creating default '${entryKey}' -> '${fileEntry}'`);
+      return {
+        ...acc,
+        [entryKey]: fileEntry
+      };
+    }
+
+    console.log(`\n[webpack] Creating entries for '${entryKey}'...`);
+
+    const fileName = path.basename(fileEntry.srcFilePath, path.extname(fileEntry.srcFilePath));
+    const fileDirectory = pathRelativeToWorkspace(
+      variables.workspacePath,
+      path.parse(fileEntry.srcFilePath).dir
+    )
+      .split(path.sep)
+      .slice(1)
+      .join(path.sep);
+    const outputFile = [variables.jsOutputDirName, fileDirectory, `${fileName}.js`].join(path.sep);
+
+    console.log(`[webpack] Created '${entryKey}' -> '${outputFile}'`);
     return {
       ...acc,
-      ...Object.entries(fileEntry).reduce((acc, [entryName, entryData]) => {
-        const entryOutputFile = path.basename(
-          entryData.srcFilePath,
-          path.extname(entryData.srcFilePath)
-        );
-        const fileEntryDescription: EntryDescription = {
-          import: entryData.srcFilePath,
-          filename: path.join(entryData.buildOutputDir)
-        };
-
-        console.log(
-          `\t'${entryName}' -> \n\t\tSource: ${fileEntryDescription.import}\n\t\tTarget: ${fileEntryDescription.filename}\n`
-        );
-
-        return {
-          ...acc,
-          [entryName]: fileEntryDescription
-        };
-      }, {})
+      [entryKey]: {
+        import: fileEntry.srcFilePath,
+        filename: outputFile
+      }
     };
   }, {});
 }
 
-export function createExtReloaderEntryConfigFromWebpack(webpackConfig: Configuration): {
-  [key: string]: string;
-} {
-  if (typeof webpackConfig.entry !== "object" || Array.isArray(webpackConfig.entry)) {
-    throw new Error(
-      "[ExtensionReloaderWebpackPlugin] Webpack entries must be of type 'EntryObject'"
-    );
-  }
+export function logEntries(
+  config: ExtensionConfiguration,
+  workspaceDir: string,
+  outputDir: string
+) {
+  const entryLogMap = Object.entries(config.entry).reduce<ExtensionEntries>(
+    (currentMap, [entryKey, entryDefinition]) => {
+      let entryLog = null;
 
-  const webpackEntries: EntryObject = webpackConfig.entry;
+      if (typeof entryDefinition === "string") {
+        entryLog = {
+          import: pathRelativeToWorkspace(workspaceDir, entryDefinition),
+          filename: "Default"
+        };
+      } else {
+        const entryFilePath = entryDefinition.import;
 
-  return Object.entries(webpackEntries).reduce(
-    (acc, [webpackEntryName, webpackEntryDescription]: [string, EntryDescription]) => {
-      let entryName = webpackEntryName;
-      if (webpackEntryName === "extension") {
-        entryName = "extensionPage";
+        entryLog = Array.isArray(entryFilePath)
+          ? entryFilePath.join(", ")
+          : {
+              import: pathRelativeToWorkspace(workspaceDir, entryFilePath),
+              filename: pathRelativeToWorkspace(workspaceDir, entryDefinition.filename)
+            };
       }
-      let file = null;
-
-      if (typeof webpackEntryDescription === "string") {
-        file = webpackEntryDescription;
-      } else if (typeof webpackEntryDescription === "object") {
-        file = webpackEntryDescription.filename;
-      }
-
-      // const filename = webpackEntryDescription.filename.split("/").slice(1).join("/");
-
-      console.log(`[ExtensionReloaderWebpackPlugin] Created '${webpackEntryName}' -> '${file}'`);
 
       return {
-        ...acc,
-        [entryName]: file
+        ...currentMap,
+        [entryKey]: entryLog
       };
     },
     {}
   );
+
+  console.table(entryLogMap);
 }

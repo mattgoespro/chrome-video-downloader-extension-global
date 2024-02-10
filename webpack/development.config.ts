@@ -2,18 +2,20 @@ import { Configuration, SourceMapDevToolPlugin } from "webpack";
 import webpackMerge from "webpack-merge";
 import { WebpackVariables } from "../webpack.config";
 import baseConfiguration from "./base.config";
-import {
-  ExtensionReloaderWebpackPlugin,
-  createExtReloaderEntryConfigFromWebpack,
-  findFile
-} from "./functions.config";
+import { findFile, logEntries, ExtensionReloaderWebpackPlugin } from "./functions.config";
 
-const devConfig: (variables: WebpackVariables) => Configuration = (variables) => {
-  const baseConfig = baseConfiguration(variables);
-  const extReloaderEntryConfig = createExtReloaderEntryConfigFromWebpack(baseConfig);
+const devConfig: (variables: WebpackVariables, outputPath: string) => Configuration = (
+  variables,
+  outputPath
+) => {
+  const baseConfig = baseConfiguration(variables, outputPath);
 
-  console.log(`\n\nCreated 'webpack-ext-reloader' entries from webpack configuration.\n`);
-  console.table(extReloaderEntryConfig);
+  if (typeof baseConfig.entry !== "object") {
+    throw new Error("[webpack] Expected base configuration entries to be of type 'EntryObject'.");
+  }
+
+  console.log("[webpack] Using base configuration entries:");
+  logEntries(baseConfig, variables.workspacePath, baseConfig.output.path);
 
   return webpackMerge(baseConfig, {
     mode: "development",
@@ -29,13 +31,12 @@ const devConfig: (variables: WebpackVariables) => Configuration = (variables) =>
         columns: true,
         noSources: false,
         namespace: "Video Downloader"
-      }),
-      new ExtensionReloaderWebpackPlugin({
-        port: 9090,
-        reloadPage: true,
-        manifest: findFile(variables.srcPath, "manifest.json"),
-        entries: extReloaderEntryConfig
       })
+      // new ExtensionReloaderWebpackPlugin({
+      //   port: 9090,
+      //   reloadPage: true,
+      //   manifest: findFile(variables.srcPath, "manifest.json")
+      // })
     ]
   });
 };

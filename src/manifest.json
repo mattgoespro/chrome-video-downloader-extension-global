@@ -9,11 +9,11 @@
     "default_title": "Click to view video..."
   },
   "background": {
-    "service_worker": "js/runtime/background.js"
+    "service_worker": "js\\runtime\\background\\background.js"
   },
   "content_scripts": [
     {
-      "js": ["js/runtime/contentScript.js"],
+      "js": ["js\\runtime\\contentScript\\contentScript.js"],
       "matches": [
         "https://*/video/*",
         "https://*/*/video/*",
