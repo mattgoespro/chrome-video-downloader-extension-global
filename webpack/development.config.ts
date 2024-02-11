@@ -2,7 +2,12 @@ import { Configuration, SourceMapDevToolPlugin } from "webpack";
 import webpackMerge from "webpack-merge";
 import { WebpackVariables } from "../webpack.config";
 import baseConfiguration from "./base.config";
-import { findFile, logEntries, ExtensionReloaderWebpackPlugin } from "./functions.config";
+import {
+  findFile,
+  logEntries,
+  ExtensionReloaderWebpackPlugin,
+  outputFilePath
+} from "./functions.config";
 
 const devConfig: (variables: WebpackVariables, outputPath: string) => Configuration = (
   variables,
@@ -15,7 +20,20 @@ const devConfig: (variables: WebpackVariables, outputPath: string) => Configurat
   }
 
   console.log("[webpack] Using base configuration entries:");
-  logEntries(baseConfig, variables.workspacePath, baseConfig.output.path);
+  logEntries(baseConfig, variables.workspacePath);
+
+  console.log("[webpack] Transformed webpack entries to webpack-ext-reloader:");
+  console.table({
+    extensionPage: `panel.html`,
+    ...Object.entries(baseConfig.entry)
+      .map(([entryKey, entry]) => ({
+        [entryKey]:
+          typeof entry === "object"
+            ? entry.filename
+            : outputFilePath(variables.workspacePath, entry, baseConfig.output.filename)
+      }))
+      .reduce((acc, entry) => ({ ...acc, ...entry }))
+  });
 
   return webpackMerge(baseConfig, {
     mode: "development",
@@ -31,12 +49,20 @@ const devConfig: (variables: WebpackVariables, outputPath: string) => Configurat
         columns: true,
         noSources: false,
         namespace: "Video Downloader"
+      }),
+      new ExtensionReloaderWebpackPlugin({
+        port: 9090,
+        reloadPage: true,
+        manifest: findFile(variables.srcPath, "manifest.json"),
+        entries: {
+          extensionPage: `panel.html`,
+          ...Object.entries(baseConfig.entry)
+            .map(([entryKey, entry]) => ({
+              [entryKey]: typeof entry === "object" ? entry.filename : entry
+            }))
+            .reduce((acc, entry) => ({ ...acc, ...entry }))
+        }
       })
-      // new ExtensionReloaderWebpackPlugin({
-      //   port: 9090,
-      //   reloadPage: true,
-      //   manifest: findFile(variables.srcPath, "manifest.json")
-      // })
     ]
   });
 };

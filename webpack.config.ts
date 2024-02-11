@@ -7,7 +7,6 @@ const workspacePath = ".";
 const srcPath = pathRelativeToWorkspace(workspacePath, "src");
 const publicPath = pathRelativeToWorkspace(workspacePath, "public");
 const outputPath = pathRelativeToWorkspace(workspacePath, "dist");
-const jsOutputDirName = `js`;
 
 /**
  * Configuration paths relative to the directory containing this file.
@@ -16,7 +15,6 @@ const variables = {
   workspacePath,
   srcPath,
   publicPath,
-  jsOutputDirName,
   runtimeSrcPath: `${srcPath}/runtime`,
   rendererSrcPath: `${srcPath}/renderer`
 };

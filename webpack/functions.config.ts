@@ -1,5 +1,5 @@
 import fs from "fs";
-import path from "path";
+import { posix as path } from "path";
 import { ExtensionConfiguration, ExtensionOutput, ExtensionEntries } from "webpack";
 import { ExtensionReloader } from "webpack-ext-reloader";
 import { WebpackVariables } from "webpack.config";
@@ -46,17 +46,27 @@ export function pathRelativeToWorkspace(workspaceDirPath: string, toPath: string
   return path.relative(workspaceDirPath, toPath);
 }
 
-function relativeWorkspaceFileOutputPath(
+export function outputFilePath(
   workspaceDirPath: string,
   importFilePath: string,
-  outputDirPath: string
+  outputConfigPrefixDir: string
 ) {
-  const outputDirName = path.basename(outputDirPath);
+  const fileName = path.basename(importFilePath, path.extname(importFilePath));
+  const fileDirectory = pathRelativeToWorkspace(workspaceDirPath, path.parse(importFilePath).dir)
+    .split(path.sep)
+    .slice(1)
+    .join(path.sep);
+  const prefixDir = outputConfigPrefixDir.replace("/[name].js", "");
+  console.log("prefix dir", prefixDir);
+  console.log("file directory", fileDirectory);
+  console.log("file name", `${fileName}.js`);
+  const outputFilePath = [prefixDir];
 
-  return pathRelativeToWorkspace(
-    workspaceDirPath,
-    path.join(outputDirName, path.relative(workspaceDirPath, importFilePath))
-  );
+  if (fileDirectory.trim().length > 0) {
+    outputFilePath.push(fileDirectory);
+  }
+
+  return [...outputFilePath, `${fileName}.js`].join(path.sep);
 }
 
 export function createWebpackEntries(
@@ -74,18 +84,13 @@ export function createWebpackEntries(
     }
 
     console.log(`\n[webpack] Creating entries for '${entryKey}'...`);
-
-    const fileName = path.basename(fileEntry.srcFilePath, path.extname(fileEntry.srcFilePath));
-    const fileDirectory = pathRelativeToWorkspace(
+    const outputFile = outputFilePath(
       variables.workspacePath,
-      path.parse(fileEntry.srcFilePath).dir
-    )
-      .split(path.sep)
-      .slice(1)
-      .join(path.sep);
-    const outputFile = [variables.jsOutputDirName, fileDirectory, `${fileName}.js`].join(path.sep);
-
+      fileEntry.srcFilePath,
+      outputConfig.filename
+    );
     console.log(`[webpack] Created '${entryKey}' -> '${outputFile}'`);
+
     return {
       ...acc,
       [entryKey]: {
@@ -96,11 +101,7 @@ export function createWebpackEntries(
   }, {});
 }
 
-export function logEntries(
-  config: ExtensionConfiguration,
-  workspaceDir: string,
-  outputDir: string
-) {
+export function logEntries(config: ExtensionConfiguration, workspaceDir: string) {
   const entryLogMap = Object.entries(config.entry).reduce<ExtensionEntries>(
     (currentMap, [entryKey, entryDefinition]) => {
       let entryLog = null;
@@ -117,7 +118,7 @@ export function logEntries(
           ? entryFilePath.join(", ")
           : {
               import: pathRelativeToWorkspace(workspaceDir, entryFilePath),
-              filename: pathRelativeToWorkspace(workspaceDir, entryDefinition.filename)
+              filename: entryDefinition.filename
             };
       }
 

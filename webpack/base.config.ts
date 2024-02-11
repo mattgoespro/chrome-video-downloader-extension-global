@@ -1,4 +1,4 @@
-import path from "path";
+import { posix as path } from "path";
 import { CleanWebpackPlugin } from "clean-webpack-plugin";
 import CopyWebpackPlugin from "copy-webpack-plugin";
 import FaviconsWebpackPlugin from "favicons-webpack-plugin";
@@ -13,12 +13,14 @@ const baseConfig: (
   outputPath: string
 ) => ExtensionConfiguration = (variables, outputPath) => {
   const entryMap = {
-    extension: findFile(variables.srcPath, "extension.tsx"),
+    extension: {
+      srcFilePath: findFile(variables.srcPath, "extension.tsx")
+    },
     background: {
-      srcFilePath: findFile(variables.runtimeSrcPath, "background.ts")
+      srcFilePath: findFile(variables.srcPath, "background.ts")
     },
     contentScript: {
-      srcFilePath: findFile(variables.runtimeSrcPath, "contentScript.ts")
+      srcFilePath: findFile(variables.srcPath, "contentScript.ts")
     }
   };
 
