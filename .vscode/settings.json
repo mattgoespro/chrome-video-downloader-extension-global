@@ -58,7 +58,7 @@
   "typescript.format.enable": false,
   "typescript.tsdk": "node_modules\\typescript\\lib",
   "typescript.updateImportsOnFileMove.enabled": "always",
-  "workbench.iconTheme": "material-icon-theme",
+  "workbench.iconTheme": "vs-seti",
   "editor.defaultFoldingRangeProvider": "esbenp.prettier-vscode",
   "github.copilot.chat.welcomeMessage": "never",
   "github.copilot.advanced": {

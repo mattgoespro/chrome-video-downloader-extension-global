@@ -1,22 +1,14 @@
 import fs from "fs";
-import { posix as path } from "path";
-import { ExtensionConfiguration, ExtensionOutput, ExtensionEntries } from "webpack";
+import path from "path";
+import { ExtensionOutput, ExtensionEntries, ExtensionEntryDescription } from "webpack";
 import { ExtensionReloader } from "webpack-ext-reloader";
-import { WebpackVariables } from "webpack.config";
-import { WebpackConfigEntrySourceMap } from "./types.config";
+import { paths } from "./paths.config";
+import { EntrySourceFileMap } from "./types.config";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 export const ExtensionReloaderWebpackPlugin: typeof ExtensionReloader = require("webpack-ext-reloader"); // 'webpack-ext-reloader' types are broken
 
-export function pause(time = 1000) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(true);
-    }, time);
-  });
-}
-
-export function findFile(directory: string, fileName: string): string | null {
+export function findFileInDirectory(directory: string, fileName: string): string | null {
   let dir = directory;
 
   if (!path.isAbsolute(directory)) {
@@ -29,7 +21,7 @@ export function findFile(directory: string, fileName: string): string | null {
     const dirPath = path.join(dir, dirEntry.name);
 
     if (dirEntry.isDirectory()) {
-      const foundFilePath = findFile(dirPath, fileName);
+      const foundFilePath = findFileInDirectory(dirPath, fileName);
 
       if (foundFilePath != null) {
         return foundFilePath;
@@ -42,93 +34,70 @@ export function findFile(directory: string, fileName: string): string | null {
   return null;
 }
 
-export function pathRelativeToWorkspace(workspaceDirPath: string, toPath: string) {
-  return path.relative(workspaceDirPath, toPath);
-}
-
-export function outputFilePath(
-  workspaceDirPath: string,
-  importFilePath: string,
-  outputConfigPrefixDir: string
-) {
+export function outputFilePath(importFilePath: string, configOutputFilename: string) {
   const fileName = path.basename(importFilePath, path.extname(importFilePath));
-  const fileDirectory = pathRelativeToWorkspace(workspaceDirPath, path.parse(importFilePath).dir)
-    .split(path.sep)
-    .slice(1)
-    .join(path.sep);
-  const prefixDir = outputConfigPrefixDir.replace("/[name].js", "");
-  console.log("prefix dir", prefixDir);
-  console.log("file directory", fileDirectory);
-  console.log("file name", `${fileName}.js`);
-  const outputFilePath = [prefixDir];
+  const fileSourceDirectory = path.relative(paths.srcPath, path.dirname(importFilePath));
 
-  if (fileDirectory.trim().length > 0) {
-    outputFilePath.push(fileDirectory);
-  }
+  // const fileOutputDirectory = path.normalize(
+  //   configOutputFilename.replace("[name]", fileSourceDirectory)
+  // );
 
-  return [...outputFilePath, `${fileName}.js`].join(path.sep);
+  return path.join(fileSourceDirectory, `${fileName}.js`);
 }
 
 export function createWebpackEntries(
-  entryMap: WebpackConfigEntrySourceMap,
-  outputConfig: ExtensionOutput,
-  variables: WebpackVariables
+  sourceFileMap: EntrySourceFileMap,
+  outputConfig: ExtensionOutput
 ): ExtensionEntries {
-  return Object.entries(entryMap).reduce((acc, [entryKey, fileEntry]) => {
-    if (typeof fileEntry === "string") {
-      console.log(`[webpack] Creating default '${entryKey}' -> '${fileEntry}'`);
+  return Object.entries(sourceFileMap).reduce<ExtensionEntries>((acc, [entryName, entryObject]) => {
+    if (typeof entryObject === "string") {
+      const entry: ExtensionEntryDescription = {
+        import: entryObject,
+        filename: outputFilePath(entryObject, outputConfig.filename)
+      };
+
+      console.log(`\t'${entryName}' -> '${entry.filename}'`);
+
       return {
         ...acc,
-        [entryKey]: fileEntry
+        [entryName]: entry
       };
     }
 
-    console.log(`\n[webpack] Creating entries for '${entryKey}'...`);
-    const outputFile = outputFilePath(
-      variables.workspacePath,
-      fileEntry.srcFilePath,
-      outputConfig.filename
-    );
-    console.log(`[webpack] Created '${entryKey}' -> '${outputFile}'`);
+    console.log(`\n[webpack] Creating '${entryName}' entries:`);
 
     return {
       ...acc,
-      [entryKey]: {
-        import: fileEntry.srcFilePath,
-        filename: outputFile
-      }
+      ...createWebpackEntries(entryObject, outputConfig)
     };
   }, {});
 }
 
-export function logEntries(config: ExtensionConfiguration, workspaceDir: string) {
-  const entryLogMap = Object.entries(config.entry).reduce<ExtensionEntries>(
-    (currentMap, [entryKey, entryDefinition]) => {
-      let entryLog = null;
+export function entryLog(entries: ExtensionEntries, options: { pathsRelativeTo: string }) {
+  return Object.entries(entries).reduce((acc, [entryKey, entryDefinition]) => {
+    return {
+      ...acc,
+      [entryKey]: path.relative(options.pathsRelativeTo, entryDefinition.filename)
+    };
+  }, {});
+}
 
-      if (typeof entryDefinition === "string") {
-        entryLog = {
-          import: pathRelativeToWorkspace(workspaceDir, entryDefinition),
-          filename: "Default"
-        };
-      } else {
-        const entryFilePath = entryDefinition.import;
-
-        entryLog = Array.isArray(entryFilePath)
-          ? entryFilePath.join(", ")
-          : {
-              import: pathRelativeToWorkspace(workspaceDir, entryFilePath),
-              filename: entryDefinition.filename
-            };
-      }
-
-      return {
-        ...currentMap,
-        [entryKey]: entryLog
-      };
-    },
-    {}
-  );
-
-  console.table(entryLogMap);
+export function createExtensionReloaderEntries(
+  extensionPageEntryKey: string,
+  entries: ExtensionEntries
+) {
+  return {
+    extensionPage: extensionPageEntryKey,
+    ...Object.entries(entries)
+      .map(([entryKey]) => ({
+        [entryKey]: entryKey
+      }))
+      .reduce(
+        (acc, entry) => ({
+          ...acc,
+          ...entry
+        }),
+        {}
+      )
+  };
 }

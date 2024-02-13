@@ -1,14 +1,10 @@
 import TerserWebpackPlugin from "terser-webpack-plugin";
 import { Configuration } from "webpack";
 import { merge } from "webpack-merge";
-import { WebpackVariables } from "../webpack.config";
 import baseConfig from "./base.config";
 
-const prodConfig: (variables: WebpackVariables, outputPath: string) => Configuration = (
-  variables,
-  outputPath
-) => {
-  return merge(baseConfig(variables, outputPath), {
+const prodConfig: () => Configuration = () => {
+  return merge(baseConfig(), {
     mode: "production",
     optimization: {
       minimize: true,

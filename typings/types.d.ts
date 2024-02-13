@@ -1,4 +1,3 @@
-import path from "path";
 import { Configuration as WebpackConfiguration } from "webpack";
 
 declare module "webpack" {
@@ -8,7 +7,7 @@ declare module "webpack" {
   };
 
   export interface ExtensionEntries {
-    [index: string]: string | ExtensionEntryDescription;
+    [index: string]: ExtensionEntryDescription;
   }
 
   export interface ExtensionOutput {
@@ -19,14 +18,6 @@ declare module "webpack" {
   export interface ExtensionConfiguration extends WebpackConfiguration {
     entry?: ExtensionEntries;
     output?: ExtensionOutput;
-  }
-}
-
-declare global {
-  declare module "path" {
-    interface PlatformPath {
-      dir: path.dirname;
-    }
   }
 }
 
