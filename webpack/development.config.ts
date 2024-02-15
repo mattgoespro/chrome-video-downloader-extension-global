@@ -4,7 +4,6 @@ import baseConfiguration from "./base.config";
 import {
   findFileInDirectory,
   ExtensionReloaderWebpackPlugin,
-  outputFilePath,
   createExtensionReloaderEntries
 } from "./functions.config";
 import { paths } from "./paths.config";
@@ -16,11 +15,11 @@ const devConfig: () => Configuration = () => {
     throw new Error("[webpack] Expected base configuration entries to be of type 'EntryObject'.");
   }
 
-  const extensionReloaderEntries = createExtensionReloaderEntries("panel", baseConfig.entry);
+  const extensionReloaderEntries = createExtensionReloaderEntries(baseConfig.entry);
 
   console.log("[webpack] Configured Extension Reloader entries:");
   console.table(extensionReloaderEntries);
-  console.log(findFileInDirectory(paths.srcPath, "manifest.json"));
+
   return webpackMerge(baseConfig, {
     mode: "development",
     devtool: false,
@@ -39,7 +38,8 @@ const devConfig: () => Configuration = () => {
       new ExtensionReloaderWebpackPlugin({
         port: 9090,
         reloadPage: true,
-        manifest: findFileInDirectory(paths.srcPath, "manifest.json")
+        manifest: findFileInDirectory(paths.srcPath, "manifest.json"),
+        entries: extensionReloaderEntries
       })
     ]
   });

@@ -1,4 +1,4 @@
-import { Configuration as WebpackConfiguration } from "webpack";
+import { Configuration as WebpackConfig } from "webpack";
 
 declare module "webpack" {
   export type ExtensionEntryDescription = {
@@ -6,18 +6,21 @@ declare module "webpack" {
     filename: string;
   };
 
+  export type WebpackConfiguration = WebpackConfig;
+
   export interface ExtensionEntries {
-    [index: string]: ExtensionEntryDescription;
+    [index: string]: string;
   }
 
-  export interface ExtensionOutput {
-    path: string;
-    filename: string;
-  }
+  type WebpackOutput = WebpackConfiguration["output"];
 
   export interface ExtensionConfiguration extends WebpackConfiguration {
     entry?: ExtensionEntries;
-    output?: ExtensionOutput;
+    // output?: {
+    //   path: WebpackOutput["path"];
+    //   filename: Exclude<WebpackOutput["filename"], string>;
+    // };
+    output?: WebpackConfig["output"];
   }
 }
 

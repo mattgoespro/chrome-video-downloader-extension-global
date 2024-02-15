@@ -4,15 +4,20 @@ import CopyWebpackPlugin from "copy-webpack-plugin";
 import FaviconsWebpackPlugin from "favicons-webpack-plugin";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import TsConfigPathsWebpackPlugin from "tsconfig-paths-webpack-plugin";
-import { EnvironmentPlugin, ExtensionConfiguration, ExtensionOutput } from "webpack";
-import { findFileInDirectory, createWebpackEntries, entryLog } from "./functions.config";
+import { EnvironmentPlugin, ExtensionConfiguration } from "webpack";
+import {
+  findFileInDirectory,
+  createWebpackEntries,
+  entryLog,
+  outputFilePath
+} from "./functions.config";
 import { paths } from "./paths.config";
 import { EntrySourceFileMap } from "./types.config";
 
 const baseConfig: () => ExtensionConfiguration = () => {
   const sourceFileMap: EntrySourceFileMap = {
     renderer: {
-      extension: findFileInDirectory(paths.srcPath, "extension.tsx")
+      extensionPage: findFileInDirectory(paths.srcPath, "extension.tsx")
     },
     runtime: {
       background: findFileInDirectory(paths.srcPath, "background.ts"),
@@ -22,21 +27,28 @@ const baseConfig: () => ExtensionConfiguration = () => {
 
   const outputPath = path.join(paths.workspacePath, "dist");
 
-  const webpackOutput: ExtensionConfiguration["output"] = {
-    path: outputPath,
-    filename: "./" // generates the entry output filename when the entry itself does not defined it
-  };
-
-  const extensionEntries = createWebpackEntries(sourceFileMap, webpackOutput);
+  const extensionEntries = createWebpackEntries(sourceFileMap);
 
   console.log("\n[webpack] Created Configuration Entries");
   console.table(entryLog(extensionEntries, { pathsRelativeTo: paths.workspacePath }));
+  console.table(extensionEntries);
 
   return {
     context: __dirname, // favicon webpack plugin resolves paths relative current directory
     stats: "errors-warnings",
-    entry: extensionEntries,
-    output: webpackOutput,
+    entry: {
+      ...extensionEntries
+    },
+    output: {
+      path: outputPath,
+      filename: (pathData) => {
+        const filePath = outputFilePath(extensionEntries[pathData.chunk.name]);
+
+        console.log(`[webpack] Bundling '${pathData.chunk.name}' -> '${filePath}`);
+
+        return filePath;
+      }
+    },
     resolve: {
       extensions: [".ts", ".tsx", ".js", ".json"],
       alias: {

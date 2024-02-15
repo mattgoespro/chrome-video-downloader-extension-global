@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { ExtensionOutput, ExtensionEntries, ExtensionEntryDescription } from "webpack";
+import { ExtensionEntries } from "webpack";
 import { ExtensionReloader } from "webpack-ext-reloader";
 import { paths } from "./paths.config";
 import { EntrySourceFileMap } from "./types.config";
@@ -34,33 +34,21 @@ export function findFileInDirectory(directory: string, fileName: string): string
   return null;
 }
 
-export function outputFilePath(importFilePath: string, configOutputFilename: string) {
-  const fileName = path.basename(importFilePath, path.extname(importFilePath));
-  const fileSourceDirectory = path.relative(paths.srcPath, path.dirname(importFilePath));
-
-  // const fileOutputDirectory = path.normalize(
-  //   configOutputFilename.replace("[name]", fileSourceDirectory)
-  // );
-
-  return path.join(fileSourceDirectory, `${fileName}.js`);
+export function outputFilePath(importFilePath: string) {
+  const outputFileDir = path.relative(paths.srcPath, path.dirname(importFilePath));
+  return outputFileDir.length > 0
+    ? path.join(`js`, outputFileDir, `[name].js`)
+    : path.join(`js`, `[name].js`);
 }
 
-export function createWebpackEntries(
-  sourceFileMap: EntrySourceFileMap,
-  outputConfig: ExtensionOutput
-): ExtensionEntries {
+export function createWebpackEntries(sourceFileMap: EntrySourceFileMap): ExtensionEntries {
   return Object.entries(sourceFileMap).reduce<ExtensionEntries>((acc, [entryName, entryObject]) => {
     if (typeof entryObject === "string") {
-      const entry: ExtensionEntryDescription = {
-        import: entryObject,
-        filename: outputFilePath(entryObject, outputConfig.filename)
-      };
-
-      console.log(`\t'${entryName}' -> '${entry.filename}'`);
+      console.log(`\t'${entryName}' -> '${entryObject}'`);
 
       return {
         ...acc,
-        [entryName]: entry
+        [entryName]: entryObject
       };
     }
 
@@ -68,7 +56,7 @@ export function createWebpackEntries(
 
     return {
       ...acc,
-      ...createWebpackEntries(entryObject, outputConfig)
+      ...createWebpackEntries(entryObject)
     };
   }, {});
 }
@@ -77,17 +65,13 @@ export function entryLog(entries: ExtensionEntries, options: { pathsRelativeTo: 
   return Object.entries(entries).reduce((acc, [entryKey, entryDefinition]) => {
     return {
       ...acc,
-      [entryKey]: path.relative(options.pathsRelativeTo, entryDefinition.filename)
+      [entryKey]: path.relative(options.pathsRelativeTo, entryDefinition)
     };
   }, {});
 }
 
-export function createExtensionReloaderEntries(
-  extensionPageEntryKey: string,
-  entries: ExtensionEntries
-) {
+export function createExtensionReloaderEntries(entries: ExtensionEntries) {
   return {
-    extensionPage: extensionPageEntryKey,
     ...Object.entries(entries)
       .map(([entryKey]) => ({
         [entryKey]: entryKey
