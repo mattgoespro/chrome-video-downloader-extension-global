@@ -1,10 +1,11 @@
 import path from "path";
 import { CleanWebpackPlugin } from "clean-webpack-plugin";
-import CopyWebpackPlugin from "copy-webpack-plugin";
 import FaviconsWebpackPlugin from "favicons-webpack-plugin";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import TsConfigPathsWebpackPlugin from "tsconfig-paths-webpack-plugin";
 import { EnvironmentPlugin, ExtensionConfiguration } from "webpack";
+import WebpackExtensionManifestPlugin from "webpack-extension-manifest-plugin";
+import manifest from "../src/manifest.base";
 import {
   findFileInDirectory,
   createWebpackEntries,
@@ -29,9 +30,9 @@ const baseConfig: () => ExtensionConfiguration = () => {
 
   const extensionEntries = createWebpackEntries(sourceFileMap);
 
-  console.log("\n[webpack] Created Configuration Entries");
+  console.log("\n\n[webpack] Created Configuration Entries (paths relative to workspace)");
   console.table(entryLog(extensionEntries, { pathsRelativeTo: paths.workspacePath }));
-  console.table(extensionEntries);
+  console.log("\n");
 
   return {
     context: __dirname, // favicon webpack plugin resolves paths relative current directory
@@ -44,7 +45,7 @@ const baseConfig: () => ExtensionConfiguration = () => {
       filename: (pathData) => {
         const filePath = outputFilePath(extensionEntries[pathData.chunk.name]);
 
-        console.log(`[webpack] Bundling '${pathData.chunk.name}' -> '${filePath}`);
+        console.log(`[webpack] Using filename '${pathData.chunk.name}' -> '${filePath}`);
 
         return filePath;
       }
@@ -91,13 +92,42 @@ const baseConfig: () => ExtensionConfiguration = () => {
         hash: false,
         scriptLoading: "module"
       }),
-      new CopyWebpackPlugin({
-        patterns: [
-          {
-            from: path.resolve(paths.srcPath, "manifest.json"),
-            to: "manifest.json" // 'to' path is relative to output.path
+      new WebpackExtensionManifestPlugin({
+        config: {
+          base: manifest,
+          extend: {
+            action: {
+              default_panel: "panel.html"
+            },
+            side_panel: {
+              default_path: "panel.html"
+            },
+            background: {
+              service_worker: path.relative(
+                outputPath,
+                findFileInDirectory(outputPath, "background.js")
+              )
+            },
+            content_scripts: [
+              {
+                js: [
+                  path.relative(outputPath, findFileInDirectory(outputPath, "contentScript.js"))
+                ],
+                matches: [
+                  "https://*/video/*",
+                  "https://*/*/video/*",
+                  "https://*/videos/*",
+                  "https://*/*/videos/*",
+                  "https://*/watch/*",
+                  "https://*/*/watch/*",
+                  "https://*/embed/*",
+                  "https://*/*/embed/*"
+                ]
+              }
+            ]
           }
-        ]
+        },
+        pkgJsonProps: ["version"]
       }),
       new FaviconsWebpackPlugin({
         logo: path.resolve(paths.publicPath, "assets", "logo.png"),
