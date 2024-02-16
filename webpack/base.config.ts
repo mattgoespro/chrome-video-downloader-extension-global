@@ -5,33 +5,31 @@ import HtmlWebpackPlugin from "html-webpack-plugin";
 import TsConfigPathsWebpackPlugin from "tsconfig-paths-webpack-plugin";
 import { EnvironmentPlugin, ExtensionConfiguration } from "webpack";
 import WebpackExtensionManifestPlugin from "webpack-extension-manifest-plugin";
-import manifest from "../src/manifest.base";
+import manifestBaseConfig from "../src/manifest.base";
 import {
   findFileInDirectory,
   createWebpackEntries,
   entryLog,
   outputFilePath
 } from "./functions.config";
-import { paths } from "./paths.config";
+import { ExtensionPaths } from "./paths.config";
 import { EntrySourceFileMap } from "./types.config";
 
 const baseConfig: () => ExtensionConfiguration = () => {
   const sourceFileMap: EntrySourceFileMap = {
     renderer: {
-      extensionPage: findFileInDirectory(paths.srcPath, "extension.tsx")
+      extensionPage: findFileInDirectory(ExtensionPaths.SRC_PATH, "extension.tsx")
     },
     runtime: {
-      background: findFileInDirectory(paths.srcPath, "background.ts"),
-      contentScript: findFileInDirectory(paths.srcPath, "contentScript.ts")
+      background: findFileInDirectory(ExtensionPaths.SRC_PATH, "background.ts"),
+      contentScript: findFileInDirectory(ExtensionPaths.SRC_PATH, "contentScript.ts")
     }
   };
-
-  const outputPath = path.join(paths.workspacePath, "dist");
 
   const extensionEntries = createWebpackEntries(sourceFileMap);
 
   console.log("\n\n[webpack] Created Configuration Entries (paths relative to workspace)");
-  console.table(entryLog(extensionEntries, { pathsRelativeTo: paths.workspacePath }));
+  console.table(entryLog(extensionEntries, { pathsRelativeTo: ExtensionPaths.WORKSPACE_PATH }));
   console.log("\n");
 
   return {
@@ -41,7 +39,7 @@ const baseConfig: () => ExtensionConfiguration = () => {
       ...extensionEntries
     },
     output: {
-      path: outputPath,
+      path: ExtensionPaths.OUTPUT_PATH,
       filename: (pathData) => {
         const filePath = outputFilePath(extensionEntries[pathData.chunk.name]);
 
@@ -72,7 +70,7 @@ const baseConfig: () => ExtensionConfiguration = () => {
           use: [
             {
               loader: "babel-loader",
-              options: { include: [path.resolve(paths.srcPath)] }
+              options: { include: [path.resolve(ExtensionPaths.SRC_PATH)] }
             }
           ],
           exclude: /node_modules/
@@ -86,32 +84,35 @@ const baseConfig: () => ExtensionConfiguration = () => {
       }),
       new HtmlWebpackPlugin({
         filename: "panel.html",
-        template: path.resolve(paths.publicPath, "panel.html"),
+        template: ExtensionPaths.EXTENSION_PANEL_TEMPLATE_PATH,
         inject: "body",
-        chunks: ["extension"],
+        chunks: ["extensionPage"],
         hash: false,
         scriptLoading: "module"
       }),
       new WebpackExtensionManifestPlugin({
         config: {
-          base: manifest,
+          base: manifestBaseConfig,
           extend: {
             action: {
-              default_panel: "panel.html"
+              default_panel: path.basename(ExtensionPaths.EXTENSION_PANEL_TEMPLATE_PATH)
             },
             side_panel: {
-              default_path: "panel.html"
+              default_path: path.basename(ExtensionPaths.EXTENSION_PANEL_TEMPLATE_PATH)
             },
             background: {
               service_worker: path.relative(
-                outputPath,
-                findFileInDirectory(outputPath, "background.js")
+                ExtensionPaths.OUTPUT_PATH,
+                ExtensionPaths.getOutputScript("background")
               )
             },
             content_scripts: [
               {
                 js: [
-                  path.relative(outputPath, findFileInDirectory(outputPath, "contentScript.js"))
+                  path.relative(
+                    ExtensionPaths.OUTPUT_PATH,
+                    ExtensionPaths.getOutputScript("contentScript")
+                  )
                 ],
                 matches: [
                   "https://*/video/*",
@@ -130,7 +131,7 @@ const baseConfig: () => ExtensionConfiguration = () => {
         pkgJsonProps: ["version"]
       }),
       new FaviconsWebpackPlugin({
-        logo: path.resolve(paths.publicPath, "assets", "logo.png"),
+        logo: path.resolve(ExtensionPaths.PUBLIC_PATH, "assets", "logo.png"),
         mode: "webapp",
         cache: true,
         favicons: {

@@ -1,12 +1,8 @@
 import { Configuration, SourceMapDevToolPlugin } from "webpack";
 import webpackMerge from "webpack-merge";
 import baseConfiguration from "./base.config";
-import {
-  findFileInDirectory,
-  ExtensionReloaderWebpackPlugin,
-  createExtensionReloaderEntries
-} from "./functions.config";
-import { paths } from "./paths.config";
+import { ExtensionReloaderWebpackPlugin, createExtensionReloaderEntries } from "./functions.config";
+import { ExtensionPaths } from "./paths.config";
 
 const devConfig: () => Configuration = () => {
   const baseConfig = baseConfiguration();
@@ -38,7 +34,7 @@ const devConfig: () => Configuration = () => {
       new ExtensionReloaderWebpackPlugin({
         port: 9090,
         reloadPage: true,
-        manifest: findFileInDirectory(paths.srcPath, "manifest.json"),
+        manifest: ExtensionPaths.getOutputManifest(),
         entries: extensionReloaderEntries
       })
     ]
