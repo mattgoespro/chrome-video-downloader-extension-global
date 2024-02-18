@@ -17,12 +17,10 @@
     },
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "sourceMap": true,
-    "sourceRoot": "./src",
     "target": "esnext",
     "types": ["node", "chrome", "./typings/types.d.ts"],
     "useDefineForClassFields": true
   },
-  "include": ["src", "tools", "typings", "webpack"],
-  "files": ["webpack.config.ts", "webpack/types.config.ts"]
+  "include": ["src", "typings", "webpack"],
+  "files": ["webpack.config.ts", "webpack/types.ts"]
 }

@@ -5,15 +5,15 @@
       "32": "assets/favicon-32x32.png",
       "48": "assets/favicon-48x48.png"
     },
-    "default_panel": "panel.html",
+    "default_panel": "extension.html",
     "default_title": "Click to view video..."
   },
   "background": {
-    "service_worker": "js\\runtime\\background\\background.js"
+    "service_worker": "js/background.js"
   },
   "content_scripts": [
     {
-      "js": ["js\\runtime\\contentScript\\contentScript.js"],
+      "js": ["js/contentScript.js"],
       "matches": [
         "https://*/video/*",
         "https://*/*/video/*",
@@ -47,7 +47,7 @@
   ],
   "short_name": "VDownload",
   "side_panel": {
-    "default_path": "panel.html"
+    "default_path": "extension.html"
   },
   "version": "1.0"
 }

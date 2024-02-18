@@ -1,10 +1,10 @@
 import TerserWebpackPlugin from "terser-webpack-plugin";
-import { Configuration } from "webpack";
+import { ExtensionConfiguration } from "webpack";
 import { merge } from "webpack-merge";
 import baseConfig from "./base.config";
 
-const prodConfig: () => Configuration = () => {
-  return merge(baseConfig(), {
+const prodConfig: () => ExtensionConfiguration = () => {
+  return merge(baseConfig, {
     mode: "production",
     optimization: {
       minimize: true,

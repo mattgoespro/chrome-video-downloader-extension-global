@@ -14,7 +14,7 @@ declare module "webpack" {
 
   type WebpackOutput = WebpackConfiguration["output"];
 
-  export interface ExtensionConfiguration extends WebpackConfiguration {
+  export interface ExtensionConfiguration extends WebpackConfig {
     entry?: ExtensionEntries;
     // output?: {
     //   path: WebpackOutput["path"];

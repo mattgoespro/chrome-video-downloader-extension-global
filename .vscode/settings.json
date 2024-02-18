@@ -14,11 +14,13 @@
     "editor.formatOnPaste": true,
     "editor.formatOnSave": true
   },
+  "compareFolders.excludeFilter": ["**/node_modules/**", "**/dist/**", "**/.git/**"],
   "css.format.enable": false,
   "editor.codeActionsOnSave": {
     "source.fixAll": "always",
     "source.fixAll.eslint": "always"
   },
+  "editor.defaultFoldingRangeProvider": "esbenp.prettier-vscode",
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "eslint.codeActionsOnSave.mode": "all",
   "eslint.enable": true,
@@ -28,13 +30,13 @@
   "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
   "explorer.confirmDragAndDrop": false,
   "files.exclude": {
-    ".git": true,
-    "**/node_modules/**": true
+    "**/node_modules/**": true,
+    ".git": true
   },
   "files.watcherExclude": {
-    ".git": true,
+    "**/dist/**": true,
     "**/node_modules/**": true,
-    "**/dist/**": true
+    ".git": true
   },
   "html.format.enable": false,
   "javascript.format.enable": false,
@@ -49,36 +51,22 @@
   "npm.exclude": "release/**",
   "prettier.configPath": ".prettierrc.js",
   "search.exclude": {
-    ".git": true,
     "**/dist/**": true,
+    ".git": true,
     "node_modules": true,
     "npm-debug.log.*": true,
     "package-lock.json": true
   },
+  "template-string-converter.autoRemoveTemplateString": true,
+  "template-string-converter.convertOutermostQuotes": true,
+  "template-string-converter.validLanguages": [
+    "javascript",
+    "typescriptreact",
+    "javascriptreact",
+    "typescript"
+  ],
   "typescript.format.enable": false,
   "typescript.tsdk": "node_modules\\typescript\\lib",
   "typescript.updateImportsOnFileMove.enabled": "always",
-  "workbench.iconTheme": "vs-seti",
-  "editor.defaultFoldingRangeProvider": "esbenp.prettier-vscode",
-  "github.copilot.chat.welcomeMessage": "never",
-  "github.copilot.advanced": {
-    "inlineSuggestCount": 10,
-    "maxSuggestions": 10,
-    "indentationMode": {
-      "javascript": false,
-      "jsx": false,
-      "typescript": false,
-      "typescriptreact": false,
-      "*": true
-    },
-    "useTab": {
-      "*": true
-    },
-    "length": 200,
-    "listCount": 20,
-    "stops": {
-      "typescript": ["\n", "\n\n\n", "*"]
-    },
-    "temperature": "1.0"
-  }
+  "workbench.iconTheme": "material-icon-theme"
 }

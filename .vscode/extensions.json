@@ -20,6 +20,7 @@
     "markosth09.color-picker",
     "github.copilot",
     "aaravb.chrome-extension-developer-tools",
-    "cezaraugusto.vscode-chrome-extesion-manifest-json-schema"
+    "cezaraugusto.vscode-chrome-extesion-manifest-json-schema",
+    "meganrogge.template-string-converter"
   ]
 }

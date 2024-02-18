@@ -1,12 +1,11 @@
-import { Configuration, SourceMapDevToolPlugin } from "webpack";
+import { ExtensionConfiguration, SourceMapDevToolPlugin } from "webpack";
 import webpackMerge from "webpack-merge";
-import baseConfiguration from "./base.config";
-import { ExtensionReloaderWebpackPlugin, createExtensionReloaderEntries } from "./functions.config";
-import { ExtensionPaths } from "./paths.config";
+import baseConfig from "./base.config";
+import { createExtensionReloaderEntries } from "./functions";
+import { ExtensionPaths } from "./paths";
+import { ExtensionReloaderWebpackPlugin } from "./types";
 
-const devConfig: () => Configuration = () => {
-  const baseConfig = baseConfiguration();
-
+const devConfig: () => ExtensionConfiguration = () => {
   if (typeof baseConfig.entry !== "object") {
     throw new Error("[webpack] Expected base configuration entries to be of type 'EntryObject'.");
   }
@@ -18,23 +17,27 @@ const devConfig: () => Configuration = () => {
 
   return webpackMerge(baseConfig, {
     mode: "development",
-    devtool: false,
+    devtool: "inline-source-map",
     optimization: {
       minimize: false
     },
     plugins: [
-      new SourceMapDevToolPlugin({
-        filename: "[file].map",
-        append: null,
-        module: true,
-        columns: true,
-        noSources: false,
-        namespace: "Video Downloader"
-      }),
+      // new SourceMapDevToolPlugin({
+      //   filename: "[file].map",
+      //   // append: (pathData) => {
+      //   //   console.log([...pathData.chunk["_groups"]].map((g) => g.origins[0].request));
+      //   //   return `//#sourceMappingUrl=${pathData.chunk.name}.map.js`;
+      //   // }
+      //   append: null,
+      //   module: true,
+      //   columns: true,
+      //   noSources: false
+      //   // namespace: "Video Downloader"
+      // }),
       new ExtensionReloaderWebpackPlugin({
         port: 9090,
         reloadPage: true,
-        manifest: ExtensionPaths.getOutputManifest(),
+        manifest: ExtensionPaths.getOutputFile("manifest.json"),
         entries: extensionReloaderEntries
       })
     ]

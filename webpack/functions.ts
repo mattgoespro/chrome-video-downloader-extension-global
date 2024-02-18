@@ -1,12 +1,8 @@
 import fs from "fs";
 import path from "path";
 import { ExtensionEntries } from "webpack";
-import { ExtensionReloader } from "webpack-ext-reloader";
-import { ExtensionPaths } from "./paths.config";
-import { EntrySourceFileMap } from "./types.config";
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-export const ExtensionReloaderWebpackPlugin: typeof ExtensionReloader = require("webpack-ext-reloader"); // 'webpack-ext-reloader' types are broken
+import { ExtensionPaths } from "./paths";
+import { EntrySourceFileMap } from "./types";
 
 export function findFileInDirectory(directory: string, fileName: string): string | null {
   let dir = directory;
@@ -35,7 +31,7 @@ export function findFileInDirectory(directory: string, fileName: string): string
 }
 
 export function outputFilePath(importFilePath: string) {
-  const outputFileDir = path.relative(ExtensionPaths.SRC_PATH, path.dirname(importFilePath));
+  const outputFileDir = path.relative(ExtensionPaths.get("src"), path.dirname(importFilePath));
   return outputFileDir.length > 0
     ? path.join(`js`, outputFileDir, `[name].js`)
     : path.join(`js`, `[name].js`);

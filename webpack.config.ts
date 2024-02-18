@@ -1,7 +1,8 @@
+import { ExtensionConfiguration } from "webpack";
 import developmentConfig from "./webpack/development.config";
 import productionConfig from "./webpack/production.config";
 
-let config = null;
+let config: ExtensionConfiguration = null;
 
 switch (process.env.MODE) {
   case "development":
