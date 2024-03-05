@@ -17,17 +17,13 @@ const devConfig: () => ExtensionConfiguration = () => {
 
   return webpackMerge(baseConfig, {
     mode: "development",
-    devtool: "inline-source-map",
+    devtool: "source-map",
     optimization: {
       minimize: false
     },
     plugins: [
       // new SourceMapDevToolPlugin({
-      //   filename: "[file].map",
-      //   // append: (pathData) => {
-      //   //   console.log([...pathData.chunk["_groups"]].map((g) => g.origins[0].request));
-      //   //   return `//#sourceMappingUrl=${pathData.chunk.name}.map.js`;
-      //   // }
+      //   // filename: `js/map/[file].map`,
       //   append: null,
       //   module: true,
       //   columns: true,
@@ -37,7 +33,7 @@ const devConfig: () => ExtensionConfiguration = () => {
       new ExtensionReloaderWebpackPlugin({
         port: 9090,
         reloadPage: true,
-        manifest: ExtensionPaths.getOutputFile("manifest.json"),
+        manifest: ExtensionPaths.get("manifest.json"),
         entries: extensionReloaderEntries
       })
     ]

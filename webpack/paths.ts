@@ -22,14 +22,14 @@ export class ExtensionPaths {
   }
 
   static get<T extends Path<Paths> = Path<Paths>>(pathKey: T) {
-    return this.paths[pathKey];
+    return path.resolve(this.paths[pathKey]);
   }
 
   static getRelative<T extends Path<Paths> = Path<Paths>>(
     pathKey: T,
-    relativeTo: PathVariable<Paths> = "WORKSPACE"
+    relativeTo: T = "WORKSPACE" as T
   ) {
-    return path.relative(relativeTo, this.get(pathKey));
+    return path.relative(this.get(pathKey), this.get(relativeTo));
   }
 }
 
