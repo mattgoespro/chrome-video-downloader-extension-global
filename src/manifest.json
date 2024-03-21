@@ -5,8 +5,7 @@
       "32": "assets/favicon-32x32.png",
       "48": "assets/favicon-48x48.png"
     },
-    "default_panel": "extension.html",
-    "default_title": "Click to view video..."
+    "default_title": "Chrome Extension Starter"
   },
   "background": {
     "service_worker": "js/background.js"
@@ -14,19 +13,10 @@
   "content_scripts": [
     {
       "js": ["js/contentScript.js"],
-      "matches": [
-        "https://*/video/*",
-        "https://*/*/video/*",
-        "https://*/videos/*",
-        "https://*/*/videos/*",
-        "https://*/watch/*",
-        "https://*/*/watch/*",
-        "https://*/embed/*",
-        "https://*/*/embed/*"
-      ]
+      "matches": ["<all_urls>"]
     }
   ],
-  "description": "Download videos from a web page.",
+  "description": "A starter template for developing Chrome extensions.",
   "host_permissions": ["https://*/*", "http://*/*"],
   "icons": {
     "16": "assets/favicon-16x16.png",
@@ -34,20 +24,16 @@
     "48": "assets/favicon-48x48.png"
   },
   "manifest_version": 3,
-  "name": "Video Downloader",
+  "name": "Chrome Extension Starter",
   "permissions": [
     "tabs",
     "scripting",
     "downloads",
-    "sidePanel",
     "webRequest",
     "webNavigation",
     "contextMenus",
     "declarativeContent"
   ],
-  "short_name": "VDownload",
-  "side_panel": {
-    "default_path": "extension.html"
-  },
+  "short_name": "ChExtStarter",
   "version": "1.0"
 }

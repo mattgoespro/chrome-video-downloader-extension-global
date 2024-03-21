@@ -1,4 +1,4 @@
-import { errorLog } from "runtime/services/utils";
+import { errorLog } from "runtime/services/log";
 import { contentScriptRuntimeHandler } from "./message-handlers";
 
 try {

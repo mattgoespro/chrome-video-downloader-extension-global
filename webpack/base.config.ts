@@ -18,11 +18,7 @@ const baseConfig: ExtensionConfiguration = {
   },
   output: {
     path: ExtensionPaths.getOutput(),
-    filename: "js/[name].js",
-    sourceMapFilename: "map/[name].js.map",
-
-    devtoolModuleFilenameTemplate: "chrome-video-downloader-extension-global:///src/[resource-path]"
-    // publicPath: "./"
+    filename: "js/[name].js"
   },
   resolve: {
     extensions: [".ts", ".tsx", ".js", ".json"],

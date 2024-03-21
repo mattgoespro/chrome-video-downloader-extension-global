@@ -1,4 +1,4 @@
-import { ExtensionConfiguration, SourceMapDevToolPlugin } from "webpack";
+import { ExtensionConfiguration } from "webpack";
 import webpackMerge from "webpack-merge";
 import baseConfig from "./base.config";
 import { createExtensionReloaderEntries } from "./functions";
@@ -17,19 +17,11 @@ const devConfig: () => ExtensionConfiguration = () => {
 
   return webpackMerge(baseConfig, {
     mode: "development",
-    devtool: "source-map",
+    devtool: "inline-source-map",
     optimization: {
       minimize: false
     },
     plugins: [
-      // new SourceMapDevToolPlugin({
-      //   // filename: `js/map/[file].map`,
-      //   append: null,
-      //   module: true,
-      //   columns: true,
-      //   noSources: false
-      //   // namespace: "Video Downloader"
-      // }),
       new ExtensionReloaderWebpackPlugin({
         port: 9090,
         reloadPage: true,
