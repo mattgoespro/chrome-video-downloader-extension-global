@@ -1,5 +1,5 @@
 {
-  "name": "chrome-video-downloader-global",
+  "name": "chrome-video-downloader-extension",
   "version": "0.0.1",
   "description": "Download videos from any web pages on Chrome.",
   "private": true,
@@ -9,6 +9,7 @@
   },
   "scripts": {
     "start": "cross-env TARGET_BROWSER=chrome MODE=development cross-env webpack --config webpack.config.ts --watch",
+    "start:console-debug": "cross-env CONSOLE_DEBUG=true TARGET_BROWSER=chrome MODE=development cross-env webpack --config webpack.config.ts --watch",
     "build": "cross-env TARGET_BROWSER=chrome MODE=production cross-env webpack --config webpack.config.ts",
     "lint": "eslint . --ext .ts,.tsx"
   },

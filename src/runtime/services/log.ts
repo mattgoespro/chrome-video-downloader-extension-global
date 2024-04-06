@@ -1,10 +1,8 @@
 type LogMessage = string | number | boolean | object | (string | number | boolean | object)[];
 
-function logObjectToString(
-  type: "info" | "warn" | "error",
-  message: LogMessage,
-  error?: Error
-): string {
+type LogLevel = "info" | "warn" | "error";
+
+function logObjectToString(type: LogLevel, message: LogMessage, error?: Error): string {
   const LOG_PREFIX = "[Video Downloader Global]";
   const LOG_TYPE = type.toUpperCase();
 

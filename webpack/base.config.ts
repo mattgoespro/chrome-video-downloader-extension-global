@@ -48,7 +48,11 @@ const baseConfig: ExtensionConfiguration = {
     ]
   },
   plugins: [
-    new EnvironmentPlugin(["TARGET_BROWSER", "MODE"]),
+    new EnvironmentPlugin({
+      "process.env.TARGET_BROWSER": JSON.stringify(process.env.TARGET_BROWSER),
+      "process.env.MODE": JSON.stringify(process.env.MODE),
+      "process.env.CONSOLE_DEBUG": JSON.stringify(process.env.CONSOLE_DEBUG ?? false)
+    }),
     new CleanWebpackPlugin({
       verbose: true
     }),
