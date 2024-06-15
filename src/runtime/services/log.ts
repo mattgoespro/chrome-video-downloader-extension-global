@@ -1,40 +1,53 @@
-type LogMessage = string | number | boolean | object | (string | number | boolean | object)[];
-
+type LogArgument = string | number | boolean | object | null | undefined;
+type LogMessage = LogArgument | LogArgument[];
 type LogLevel = "info" | "warn" | "error";
 
-function logObjectToString(type: LogLevel, message: LogMessage, error?: Error): string {
-  const LOG_PREFIX = "[Video Downloader Global]";
-  const LOG_TYPE = type.toUpperCase();
+function logObject(logObject: object) {
+  let objType = "Object";
+  let logKeys = Object.keys(logObject);
+
+  if (logObject instanceof Error) {
+    objType = logObject.name ?? "Error";
+    logKeys = ["message", "stack"];
+  }
+
+  return `${objType}({\n${logKeys.map((key) => `\t${key}: ${logObject[key] ?? "Not present"}`).join("\n")}\n})`;
+}
+
+function getMessageString(message: LogArgument) {
+  switch (typeof message) {
+    case "string":
+    case "number":
+    case "boolean":
+      return message;
+    case "object":
+      return logObject(message);
+    default:
+      return "<unknown-type>";
+  }
+}
+
+function logObjectToString(level: LogLevel, message: LogMessage, error?: Error): string {
+  const LOG_PREFIX = "[chrome-extension-starter]";
 
   const combinedLogString = [];
+  const messageParts = [LOG_PREFIX, `${level}:`];
 
   if (Array.isArray(message)) {
-    let logStringSequence = [`${LOG_PREFIX} ${LOG_TYPE}:\n`];
-
     for (let i = 0; i < message.length; i++) {
-      const logLine = message[i];
-
-      switch (typeof logLine) {
-        case "string":
-          logStringSequence.push(logLine);
-          break;
-        case "object":
-          combinedLogString.push(logStringSequence.join(" "), "\n");
-          logStringSequence = [`${LOG_PREFIX} ${LOG_TYPE}: ${logLine}\n`];
-          break;
-      }
+      messageParts.push(String(getMessageString(message[i])));
     }
-    combinedLogString.push(logStringSequence.join(""));
+
+    combinedLogString.push(messageParts.join(" "));
   } else {
-    combinedLogString.push(LOG_PREFIX, LOG_TYPE, ":", message);
-    combinedLogString.push(message);
+    combinedLogString.push(LOG_PREFIX, `${level}:`, getMessageString(message));
   }
 
   if (error != null) {
-    combinedLogString.push("\n\n", error);
+    combinedLogString.push("\n", `${LOG_PREFIX} ${logObject(error)}`);
   }
 
-  return combinedLogString.join();
+  return combinedLogString.join(" ");
 }
 
 export function infoLog(message: LogMessage): string {

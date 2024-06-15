@@ -16,10 +16,6 @@ declare module "webpack" {
 
   export interface ExtensionConfiguration extends WebpackConfig {
     entry?: ExtensionEntries;
-    // output?: {
-    //   path: WebpackOutput["path"];
-    //   filename: Exclude<WebpackOutput["filename"], string>;
-    // };
     output?: WebpackConfig["output"];
   }
 }

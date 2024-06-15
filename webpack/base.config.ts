@@ -67,7 +67,12 @@ const baseConfig: ExtensionConfiguration = {
       patterns: [
         {
           from: ExtensionPaths.get("manifest.json"),
-          to: ExtensionPaths.getOutput()
+          to: ExtensionPaths.getOutput(),
+          transform: (content: Buffer) => {
+            const manifest = JSON.parse(content.toString());
+            delete manifest["$schema"];
+            return JSON.stringify(manifest, null, 2);
+          }
         }
       ]
     }),

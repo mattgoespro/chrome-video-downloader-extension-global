@@ -15,12 +15,16 @@
       "theme": ["./src/shared/theme/theme.ts"],
       "typography": ["./src/shared/theme/typography.ts"]
     },
+    "sourceMap": true,
+    "sourceRoot": "src",
+    "noEmit": true,
+    "outDir": "dist",
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "target": "esnext",
     "types": ["node", "chrome", "./typings/types.d.ts"],
     "useDefineForClassFields": true
   },
-  "include": ["src", "typings", "webpack"],
+  "include": ["src", "typings"],
   "files": ["webpack.config.ts", "webpack/types.ts"]
 }

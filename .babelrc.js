@@ -1,30 +1,24 @@
-module.exports = {
-  presets: [
-    "@babel/preset-env",
-    "@babel/preset-typescript",
-    ["@babel/preset-react", { runtime: "automatic" }]
-  ],
-  plugins: [
-    ["@babel/plugin-transform-class-properties"],
-    [
-      "@babel/plugin-transform-destructuring",
-      {
-        useBuiltIns: true
-      }
+module.exports = (api) => {
+  const isTest = api.env("test");
+
+  return {
+    presets: [
+      [
+        "@babel/preset-env",
+        {
+          targets: {
+            node: "current"
+          }
+        }
+      ],
+      "@babel/preset-react",
+      "@babel/preset-typescript"
     ],
-    [
+    plugins: [
       "@babel/plugin-transform-object-rest-spread",
-      {
-        useBuiltIns: true
-      }
-    ],
-    [
-      // Polyfills the runtime needed for async/await and generators
-      "@babel/plugin-transform-runtime",
-      {
-        helpers: false,
-        regenerator: true
-      }
-    ]
-  ]
+      "@babel/plugin-transform-destructuring",
+      "@babel/plugin-transform-class-properties",
+      isTest && "babel-plugin-dynamic-import-node"
+    ].filter(Boolean)
+  };
 };

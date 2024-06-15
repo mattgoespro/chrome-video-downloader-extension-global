@@ -19,8 +19,10 @@
     "ibm.output-colorizer",
     "markosth09.color-picker",
     "github.copilot",
-    "aaravb.chrome-extension-developer-tools",
     "cezaraugusto.vscode-chrome-extesion-manifest-json-schema",
-    "meganrogge.template-string-converter"
+    "meganrogge.template-string-converter",
+    "firsttris.vscode-jest-runner",
+    "ritwickdey.liveserver",
+    "ms-vscode.js-debug-nightly"
   ]
 }
